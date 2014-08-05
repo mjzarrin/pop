@@ -23,6 +23,7 @@ public class Pop {
     ArrayList<State> states = new ArrayList<>();
     ArrayList<Action> operators = new ArrayList<>();
     ArrayList<String> objects = new ArrayList<>();
+    ArrayList<Variable> bounded = new ArrayList<>();
     Action init = new Action();
     Action goal = new Action();
     Plan plekan;
@@ -43,7 +44,7 @@ public class Pop {
         //     plan.start= init;
         // call pop
     }
- //   private int numOfArgs;
+    //   private int numOfArgs;
 
     public Plan makeinitialplan() {
         Plan plan = new Plan();
@@ -72,12 +73,11 @@ public class Pop {
 //            get back up of p
             Plan backUpPlan = new Plan();
             backUpPlan = (Plan) p.clone();
-            
+
             //2- select from subgoals (choice)
-            
             // bayad order opertator ha ro be ham berizam ke hamash az operatore aval estefade nakone.
             Subgoal subgoal = p.subgoal.get(0);
-
+          
             // find operator to instantiate // operator.get(i)
             for (int i = 0; i < operators.size(); i++) {
                 for (int j = 0; j < operators.get(i).adds.size(); j++) {
@@ -85,80 +85,94 @@ public class Pop {
                         // inja malom mishe ke operatore monaseb vase erza kardane state darone subgoal chi hast
                         // ye action misazim bar asase parameter haye subgoal instantiate mikonim
                         Action ac = operators.get(i);
-//                        ArrayList<Variable> bounded = subgoal.state.arguments;
-                       
-                        for(int k=0;k<ac.adds.get(i).numberOfArg;k++){ // tedade argument ha
-                            ac.adds.get(i).arguments.get(k).value = subgoal.state.arguments.get(k).value;
+
+                        bounded.addAll(ac.adds.get(j).arguments);
+                        for (int k = 0; k < ac.adds.get(j).numberOfArg; k++) { // tedade argument ha
+                            ac.adds.get(j).arguments.get(k).value = subgoal.state.arguments.get(k).value;
+
                             // bad az bound kardane value be name  migardim donbale moteghayeraee ke name hashon to action yeki hast va value ro behesh ekhtesas midim.
-                            for(int w=0; w<ac.preconditions.subgoals.size();w++){
-                                for(int x=0;x<ac.preconditions.subgoals.get(w).state.arguments.size();x++){
-                                    if(ac.preconditions.subgoals.get(w).state.arguments.get(x).name.equals(ac.adds.get(i).arguments.get(k).name)){
+                            // precondition 
+                            for (int w = 0; w < ac.preconditions.subgoals.size(); w++) {
+                                for (int x = 0; x < ac.preconditions.subgoals.get(w).state.arguments.size(); x++) {
+                                    if (ac.preconditions.subgoals.get(w).state.arguments.get(x).name.equals(ac.adds.get(i).arguments.get(k).name)) {
                                         ac.preconditions.subgoals.get(w).state.arguments.get(x).value = subgoal.state.arguments.get(k).value;
+
                                     }
                                 }
-                                
+
                             }
+
+                            for (int t = 0; t < ac.deletes.size(); t++) { // delete list 
+                                for (int g = 0; g < ac.deletes.get(t).numberOfArg; g++) {
+                                    if (ac.deletes.get(t).arguments.get(g).name.equalsIgnoreCase(subgoal.state.arguments.get(k).name)) {
+                                        ac.deletes.get(t).arguments.get(g).value= subgoal.state.arguments.get(k).value;
+                                    }
+                                }
+                            }
+
                         } // action inja bound shoode ast 
-                       // inja baraye delete list ha hast
+                        // inja baraye delete list ha hast
                         // delete list ro ham meghdar dehi mikonim ke vase betonim thread ha ro be dast biarim.
-                        
-                        for(int k=0;k<ac.deletes.get(i).numberOfArg;k++){ // tedade argument ha
-                            ac.deletes.get(i).arguments.get(k).value = subgoal.state.arguments.get(k).value;
-                            // bad az bound kardane value be name  migardim donbale moteghayeraee ke name hashon to action yeki hast va value ro behesh ekhtesas midim.
-                            for(int w=0; w<ac.preconditions.subgoals.size();w++){
-                                for(int x=0;x<ac.preconditions.subgoals.get(w).state.arguments.size();x++){
-                                    if(ac.preconditions.subgoals.get(w).state.arguments.get(x).name.equals(ac.deletes.get(i).arguments.get(k).name)){
-                                        ac.preconditions.subgoals.get(w).state.arguments.get(x).value = subgoal.state.arguments.get(k).value;
-                                    }
-                                }
-                                
-                            }
-                        } // action inja bound shoode ast 
-                        
-                        
-                        /*
-                        action ro be plan ezafe mikonim
-                        order ha ro dar nazar migirim
-                        moshkel ine ke hamishe action haro mikhad az birone plan mikhad ezafe kone na dakhele plan
-                        */
-                        p.step.add(ac);
-                        
-                        Link link = new Link();
-                        link.provider = ac;
-                        link.reciver = subgoal.action;
-                        
-                        p.link.add(link);
-                        
-                        Ordering order = new Ordering();
-                        order.before = ac;
-                        order.after = subgoal.action;
-                        p.ordering.add(order);
-                        
-                        p.subgoal.addAll(ac.preconditions.subgoals); // age subgoali bashe ke bound nabashe chi mishe?????
+
+//                        for (int k = 0; k < ac.deletes.size(); k++) { // tedade argument ha
+//                            if (ac.deletes.get(k).predicate.equalsIgnoreCase(subgoal.state.predicate)) {
+//
+//                                for (int y = 0; y < ac.deletes.get(k).numberOfArg; y++) {
+//
+//                                    ac.deletes.get(k).arguments.get(y).value = subgoal.state.arguments.get(k).value;
+//
+//                                }
+//                            }
+//                        }
+//
+//                        // bad az bound kardane value be name  migardim donbale moteghayeraee ke name hashon to action yeki hast va value ro behesh ekhtesas midim.
+//                        for (int w = 0; w < ac.preconditions.subgoals.size(); w++) {
+//                            for (int x = 0; x < ac.preconditions.subgoals.get(w).state.arguments.size(); x++) {
+//                                if (ac.preconditions.subgoals.get(w).state.arguments.get(x).name.equals(ac.deletes.get(i).arguments.get(k).name)) {
+//                                    ac.preconditions.subgoals.get(w).state.arguments.get(x).value = subgoal.state.arguments.get(k).value;
+//                                }
+//                            }
+//
+//                        }
+                     // action inja bound shoode ast 
+
+                    /*
+                     action ro be plan ezafe mikonim
+                     order ha ro dar nazar migirim
+                     moshkel ine ke hamishe action haro mikhad az birone plan mikhad ezafe kone na dakhele plan
+                     */
+                    p.step.add(ac);
+
+                    Link link = new Link();
+                    link.provider = ac;
+                    link.reciver = subgoal.action;
+
+                    p.link.add(link);
+
+                    Ordering order = new Ordering();
+                    order.before = ac;
+                    order.after = subgoal.action;
+                    p.ordering.add(order);
+
+                    p.subgoal.addAll(ac.preconditions.subgoals); // age subgoali bashe ke bound nabashe chi mishe?????
 //                        p.subgoal
-                        
-                        
-                        
-                        
-                        
+
 //                          Action ac = subgoal.action;
-                        // be ezaye har chi moteghayere x hast meghdaresho az zir dar miarim
-                        // moteghayer felan 2 jast add va precondition 2 ta for lazem darim
-                        // subgoale state argument variable 
-                        break;  // vase find kardane actione bad az on break mikonim va edame nemidim
+                    // be ezaye har chi moteghayere x hast meghdaresho az zir dar miarim
+                    // moteghayer felan 2 jast add va precondition 2 ta for lazem darim
+                    // subgoale state argument variable 
+                    break;  // vase find kardane actione bad az on break mikonim va edame nemidim
 
-                    }
                 }
-
             }
-
-
-            
-            //5- causal link protection
-            //6- recall pop
+        
         }
-    }
 
+        // find thread konam.
+        //5- causal link protection
+        //6- recall pop
+    }
+}
     public void domain() throws FileNotFoundException, IOException {
         try (BufferedReader domain = new BufferedReader(new FileReader("src/pop/domain.txt"))) {
             StringBuilder sb = new StringBuilder();
