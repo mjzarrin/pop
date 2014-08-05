@@ -132,6 +132,7 @@ public class Pop {
                         Ordering order = new Ordering();
                         order.before = ac;
                         order.after = subgoal.action;
+                        p.ordering.add(order);
                         
                         p.subgoal.addAll(ac.preconditions.subgoals); // age subgoali bashe ke bound nabashe chi mishe?????
 //                        p.subgoal
@@ -151,10 +152,7 @@ public class Pop {
 
             }
 
-        //3- select an action  (choose)
-            //4- update subgoals 
-            
-            // ta inja hal shode
+
             
             //5- causal link protection
             //6- recall pop
