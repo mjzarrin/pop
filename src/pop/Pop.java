@@ -52,8 +52,8 @@ public class Pop {
         plan.end = goal;
         ArrayList<Subgoal> list = new ArrayList<>(goal.preconditions.subgoals);
         plan.subgoal = list;
-        plan.threat = null;
-        plan.link = null;
+        plan.threat = new ArrayList<>();
+        plan.link = new ArrayList<>();
         ArrayList<Ordering> ordering = new ArrayList<>();
         Ordering order = new Ordering();
         order.before = init;
@@ -77,7 +77,7 @@ public class Pop {
             //2- select from subgoals (choice)
             // bayad order opertator ha ro be ham berizam ke hamash az operatore aval estefade nakone.
             Subgoal subgoal = p.subgoal.get(0);
-          
+
             // find operator to instantiate // operator.get(i)
             for (int i = 0; i < operators.size(); i++) {
                 for (int j = 0; j < operators.get(i).adds.size(); j++) {
@@ -86,34 +86,75 @@ public class Pop {
                         // ye action misazim bar asase parameter haye subgoal instantiate mikonim
                         Action ac = operators.get(i);
 
-                        bounded.addAll(ac.adds.get(j).arguments);
                         for (int k = 0; k < ac.adds.get(j).numberOfArg; k++) { // tedade argument ha
                             ac.adds.get(j).arguments.get(k).value = subgoal.state.arguments.get(k).value;
 
                             // bad az bound kardane value be name  migardim donbale moteghayeraee ke name hashon to action yeki hast va value ro behesh ekhtesas midim.
                             // precondition 
-                            for (int w = 0; w < ac.preconditions.subgoals.size(); w++) {
-                                for (int x = 0; x < ac.preconditions.subgoals.get(w).state.arguments.size(); x++) {
-                                    if (ac.preconditions.subgoals.get(w).state.arguments.get(x).name.equals(ac.adds.get(i).arguments.get(k).name)) {
-                                        ac.preconditions.subgoals.get(w).state.arguments.get(x).value = subgoal.state.arguments.get(k).value;
+//                            for (int w = 0; w < ac.preconditions.subgoals.size(); w++) {
+//                                for (int x = 0; x < ac.preconditions.subgoals.get(w).state.arguments.size(); x++) {
+//                                    if (ac.preconditions.subgoals.get(w).state.arguments.get(x).name.equals(ac.adds.get(i).arguments.get(k).name)) {
+//                                        ac.preconditions.subgoals.get(w).state.arguments.get(x).value = subgoal.state.arguments.get(k).value;
+//
+//                                    }
+//                                }
+//
+//                            }
+//                            for (int t = 0; t < ac.deletes.size(); t++) { // delete list 
+//                                for (int g = 0; g < ac.deletes.get(t).numberOfArg; g++) {
+//                                    if (ac.deletes.get(t).arguments.get(g).name.equalsIgnoreCase(subgoal.state.arguments.get(k).name)) {
+//                                        ac.deletes.get(t).arguments.get(g).value = subgoal.state.arguments.get(k).value;
+//                                    }
+//                                }
+//                            }
+                        }
+                        ArrayList<Variable> localbound = new ArrayList<>();
+                        localbound.addAll(ac.adds.get(j).arguments);
+                        bounded.addAll(ac.adds.get(j).arguments);
 
-                                    }
+                        for (int r = 0; r < ac.arguments.size(); r++) {
+
+                            for (int y = 0; y < localbound.size(); y++) {
+                                if (localbound.get(y).name.equalsIgnoreCase(ac.arguments.get(r).name)) {
+                                    ac.arguments.get(r).value = localbound.get(y).value;
                                 }
-
                             }
 
-                            for (int t = 0; t < ac.deletes.size(); t++) { // delete list 
-                                for (int g = 0; g < ac.deletes.get(t).numberOfArg; g++) {
-                                    if (ac.deletes.get(t).arguments.get(g).name.equalsIgnoreCase(subgoal.state.arguments.get(k).name)) {
-                                        ac.deletes.get(t).arguments.get(g).value= subgoal.state.arguments.get(k).value;
+                        }
+
+                        for (int r = 0; r < ac.adds.size(); r++) {
+                            for (int a = 0; a < ac.adds.get(r).numberOfArg; a++) {
+                                for (int y = 0; y < localbound.size(); y++) {
+                                    if (localbound.get(y).name.equalsIgnoreCase(ac.adds.get(r).arguments.get(a).name)) {
+                                        ac.adds.get(r).arguments.get(a).value = localbound.get(y).value;
                                     }
                                 }
                             }
+                        }
 
-                        } // action inja bound shoode ast 
+                        for (int r = 0; r < ac.deletes.size(); r++) {
+                            for (int a = 0; a < ac.deletes.get(r).numberOfArg; a++) {
+                                for (int y = 0; y < localbound.size(); y++) {
+                                    if (localbound.get(y).name.equalsIgnoreCase(ac.deletes.get(r).arguments.get(a).name)) {
+                                        ac.deletes.get(r).arguments.get(a).value = localbound.get(y).value;
+                                    }
+                                }
+                            }
+                        }
+                        for (int r = 0; r < ac.preconditions.subgoals.size(); r++) {
+                            for (int a = 0; a < ac.preconditions.subgoals.get(r).state.numberOfArg; a++) {
+
+                                for (int y = 0; y < localbound.size(); y++) {
+                                    if (localbound.get(y).name.equalsIgnoreCase(ac.preconditions.subgoals.get(r).state.arguments.get(a).name)) {
+                                        ac.preconditions.subgoals.get(r).state.arguments.get(a).value = localbound.get(y).value;
+                                    }
+                                }
+                            }
+                        }
+
+// action inja bound shoode ast 
                         // inja baraye delete list ha hast
                         // delete list ro ham meghdar dehi mikonim ke vase betonim thread ha ro be dast biarim.
-
 //                        for (int k = 0; k < ac.deletes.size(); k++) { // tedade argument ha
 //                            if (ac.deletes.get(k).predicate.equalsIgnoreCase(subgoal.state.predicate)) {
 //
@@ -134,45 +175,45 @@ public class Pop {
 //                            }
 //
 //                        }
-                     // action inja bound shoode ast 
+                        // action inja bound shoode ast 
 
-                    /*
-                     action ro be plan ezafe mikonim
-                     order ha ro dar nazar migirim
-                     moshkel ine ke hamishe action haro mikhad az birone plan mikhad ezafe kone na dakhele plan
-                     */
-                    p.step.add(ac);
+                        /*
+                         action ro be plan ezafe mikonim
+                         order ha ro dar nazar migirim
+                         moshkel ine ke hamishe action haro mikhad az birone plan mikhad ezafe kone na dakhele plan
+                         */
+                        Link link = new Link();
+                        link.provider = ac;
+                        link.reciver = subgoal.action;
 
-                    Link link = new Link();
-                    link.provider = ac;
-                    link.reciver = subgoal.action;
+                        p.link.add(link);
 
-                    p.link.add(link);
+                        Ordering order = new Ordering();
+                        order.before = ac;
+                        order.after = subgoal.action;
+                        p.ordering.add(order);
 
-                    Ordering order = new Ordering();
-                    order.before = ac;
-                    order.after = subgoal.action;
-                    p.ordering.add(order);
-
-                    p.subgoal.addAll(ac.preconditions.subgoals); // age subgoali bashe ke bound nabashe chi mishe?????
+                        p.subgoal.addAll(ac.preconditions.subgoals); // age subgoali bashe ke bound nabashe chi mishe?????
 //                        p.subgoal
+                        p.step.add(ac);
 
 //                          Action ac = subgoal.action;
-                    // be ezaye har chi moteghayere x hast meghdaresho az zir dar miarim
-                    // moteghayer felan 2 jast add va precondition 2 ta for lazem darim
-                    // subgoale state argument variable 
-                    break;  // vase find kardane actione bad az on break mikonim va edame nemidim
+                        // be ezaye har chi moteghayere x hast meghdaresho az zir dar miarim
+                        // moteghayer felan 2 jast add va precondition 2 ta for lazem darim
+                        // subgoale state argument variable 
+                        break;  // vase find kardane actione bad az on break mikonim va edame nemidim
 
+                    }
                 }
-            }
-        
-        }
 
-        // find thread konam.
-        //5- causal link protection
-        //6- recall pop
+            }
+
+            // find thread konam.
+            //5- causal link protection
+            //6- recall pop
+        }
     }
-}
+
     public void domain() throws FileNotFoundException, IOException {
         try (BufferedReader domain = new BufferedReader(new FileReader("src/pop/domain.txt"))) {
             StringBuilder sb = new StringBuilder();
@@ -474,7 +515,7 @@ public class Pop {
                         }
                         s.arguments = arguments;
                         subgoal.state = s;
-//                        subgoal.action = 
+                        subgoal.action = goal;      // IIIIIIIIIInja barrasi mikhad
                         subgoals.add(subgoal);
 
                     }
