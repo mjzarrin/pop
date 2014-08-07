@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  *
@@ -26,15 +27,15 @@ public class Pop {
     ArrayList<Variable> bounded = new ArrayList<>();
     Action init = new Action();
     Action goal = new Action();
-    Plan plekan;
+    Plan emptyPlan;
 
     public static void main(String[] args) throws IOException {
         // read domain
-        Pop p = new Pop();
-        p.domain();
-        p.problem();
-        p.plekan = p.makeinitialplan();
-
+        Pop pop = new Pop();
+        pop.domain();
+        pop.problem();
+        Plan emptyPlan = pop.makeinitialplan();
+        pop.pop(emptyPlan);
         // list of all predicators                                                                          Done
         // list of all actions                                                                              Done
         // read problem                 //done
@@ -44,7 +45,7 @@ public class Pop {
         //     plan.start= init;
         // call pop
     }
-    //   private int numOfArgs;
+
 
     public Plan makeinitialplan() {
         Plan plan = new Plan();
@@ -60,7 +61,7 @@ public class Pop {
         order.after = goal;
         ordering.add(order);
         plan.ordering = ordering;
-        pop(plan);
+//        pop(plan);
         return plan;
     }
 
@@ -71,20 +72,20 @@ public class Pop {
             // return plan
         } else {
 //            get back up of p
-            Plan backUpPlan = new Plan();
-            backUpPlan = (Plan) p.clone();
+            Plan backUpPlan = clone(p);
 
             //2- select from subgoals (choice)
             // bayad order opertator ha ro be ham berizam ke hamash az operatore aval estefade nakone.
             Subgoal subgoal = p.subgoal.get(0);
-
-            // find operator to instantiate // operator.get(i)
+            p.subgoal.remove(0);
+            Action ac = null;
+            // find operator to instantiate // operator.get(i)   // external add action
             for (int i = 0; i < operators.size(); i++) {
                 for (int j = 0; j < operators.get(i).adds.size(); j++) {
                     if (operators.get(i).adds.get(j).predicate.equalsIgnoreCase(subgoal.state.predicate)) {
                         // inja malom mishe ke operatore monaseb vase erza kardane state darone subgoal chi hast
                         // ye action misazim bar asase parameter haye subgoal instantiate mikonim
-                        Action ac = operators.get(i);
+                        ac = operators.get(i);
 
                         for (int k = 0; k < ac.adds.get(j).numberOfArg; k++) { // tedade argument ha
                             ac.adds.get(j).arguments.get(k).value = subgoal.state.arguments.get(k).value;
@@ -209,9 +210,91 @@ public class Pop {
             }
 
             // find thread konam.
+            // be ezaye tamame delete list haye actione jadid agar precondition ham nam vojod dasht ye thread misazim.
+//            
+//            for(int i=0;i<ac.deletes.size();i++){
+//                for (int j=0;j<backUpPlan.step.size();j++){
+//                    
+//                    for(int k=0;k<backUpPlan.step.get(j).preconditions.subgoals.size();k++){
+//                        if(backUpPlan.step.get(j).preconditions.subgoals.get(k).state.predicate.equalsIgnoreCase(ac.deletes.get(i).predicate)){
+//                            for(int l=0 ; l<ac.deletes.get(i).numberOfArg;l++){
+//                                if(ac.deletes.get(i).arguments.get(l).value == backUpPlan.step.get(j).preconditions.subgoals.get(k).state.arguments.get(l).value){
+//                                    
+//                                }
+//                            }
+//                    }
+//                }
+//                
+//            }
+            // find threads 
+            for (int i = 0; i < ac.deletes.size(); i++) {
+                for (int j = 0; j < backUpPlan.link.size(); j++) {
+
+                    for (int k = 0; k < backUpPlan.link.get(j).reciver.preconditions.subgoals.size(); k++) {
+                        if (backUpPlan.link.get(j).reciver.preconditions.subgoals.get(k).state.predicate.equalsIgnoreCase(ac.deletes.get(i).predicate)) {
+                            for (int l = 0; l < ac.deletes.get(i).numberOfArg; l++) {
+                                if (ac.deletes.get(i).arguments.get(l).value == backUpPlan.link.get(j).reciver.preconditions.subgoals.get(k).state.arguments.get(l).value) {
+                                    Threat thread = new Threat();
+
+                                    thread.link = backUpPlan.link.get(j);
+                                    thread.action = ac;
+                                    thread.state = ac.deletes.get(i);
+                                    p.threat.add(thread);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+            }
+
+            // resolve threads 
+            for (int i = 0; i < p.threat.size(); i++) {
+                Ordering o = new Ordering();
+                if (p.threat.get(i).link.reciver == goal) {
+                    o.before= p.threat.get(i).action;
+                    o.after = p.threat.get(i).link.provider;
+                } else if (p.threat.get(i).link.provider == init) {
+                    o.before = p.threat.get(i).link.reciver;
+                    o.after = p.threat.get(i).action;
+                } else {  // inja bayad ezafe kard taghire constarin
+                    Random r = new Random();
+                    double rand = r.nextDouble();
+                    rand = 0.25;
+                    if(rand<0.5){
+                        o.before= p.threat.get(i).action;
+                        o.after = p.threat.get(i).link.provider;
+                        
+                        
+                        
+                    }else{
+                        o.before = p.threat.get(i).link.reciver;
+                        o.after = p.threat.get(i).action;
+                    }
+                }
+                p.ordering.add(o);
+            }
+
             //5- causal link protection
             //6- recall pop
+            pop(p);
         }
+    }
+
+    public Plan clone(Plan p) {
+
+        Plan backUp = new Plan();
+        backUp.start = (Action) p.start.clone();
+        backUp.end = (Action) p.end.clone();
+        backUp.link = (ArrayList<Link>) p.link.clone();
+        backUp.ordering = (ArrayList<Ordering>) p.ordering.clone();
+        backUp.step = (ArrayList<Action>) p.step.clone();
+        backUp.subgoal = (ArrayList<Subgoal>) p.subgoal.clone();
+        backUp.threat = (ArrayList<Threat>) p.threat.clone();
+
+        return backUp;
     }
 
     public void domain() throws FileNotFoundException, IOException {
@@ -421,7 +504,7 @@ public class Pop {
 
     public void problem() throws FileNotFoundException, IOException {
 
-        try (BufferedReader problem = new BufferedReader(new FileReader("src/pop/large-a.txt"))) {
+        try (BufferedReader problem = new BufferedReader(new FileReader("src/pop/simple.txt"))) {
             StringBuilder sb = new StringBuilder();
             String line = problem.readLine();
 
