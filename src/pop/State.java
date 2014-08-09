@@ -13,5 +13,5 @@ import java.util.ArrayList;
 public class State {
     String predicate;
     int numberOfArg;
-    ArrayList<Variable> arguments;
+    ArrayList<Variable> arguments = new ArrayList<>();
 }

@@ -15,11 +15,20 @@ import java.util.Set;
  */
 public class Action {
     String type;
-    ArrayList<Variable> arguments;
-    Goal preconditions;
-    ArrayList<State> adds;
-    ArrayList<State> deletes;
+    ArrayList<Variable> arguments = new ArrayList<>();
+    Goal preconditions = new Goal();
+    ArrayList<State> adds =new ArrayList<>();
+    ArrayList<State> deletes = new ArrayList<>();
     // undo binding - ordering - link 
     // int depth;
     // int num-link;
+    
+    public Object clone() {
+        try {
+            Action p = (Action) super.clone();
+            return p;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

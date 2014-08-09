@@ -11,7 +11,16 @@ package pop;
  * @author vahid
  */
 public class Link {
-    Action provider;
-    Action reciver;
-    State condition;
+    Action provider = new Action();
+    Action reciver = new Action();
+    State condition = new State();
+    
+    public Object clone() {
+        try {
+            Link p = (Link) super.clone();
+            return p;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

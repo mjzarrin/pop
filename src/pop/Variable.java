@@ -13,8 +13,17 @@ import java.util.ArrayList;
  * @author vahid
  */
 public class Variable {
-    String name;
-    Object value;
-    ArrayList<Variable> constraints;
+    String name = new String();
+    Object value = new Object();
+    ArrayList<Variable> constraints = new ArrayList<>();
+    
+    public Object clone() {
+        try {
+            Variable p = (Variable) super.clone();
+            return p;
+        } catch (Exception e) {
+            return null;
+        }
+    }
     
 }

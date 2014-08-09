@@ -11,6 +11,15 @@ package pop;
  * @author vahid
  */
 public class Subgoal {
-    State state;
-    Action action;
+    State state = new State();
+    Action action =new Action();
+    
+    public Object clone() {
+        try {
+            Subgoal p = (Subgoal) super.clone();
+            return p;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

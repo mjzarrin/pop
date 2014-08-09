@@ -11,6 +11,15 @@ package pop;
  * @author vahid
  */
 public class Ordering {
-    Action before;
-    Action after;
+    Action before = new Action();
+    Action after = new Action();
+    
+    public Object clone() {
+        try {
+            Ordering p = (Ordering) super.clone();
+            return p;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

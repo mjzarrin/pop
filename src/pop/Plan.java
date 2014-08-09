@@ -11,21 +11,22 @@ import java.util.*;
  *
  * @author vahid
  */
-public class Plan implements Cloneable{
+public class Plan implements Cloneable {
 
-    ArrayList<Action> step; //instantiate action
-    ArrayList<Ordering> ordering;
-    ArrayList<Link> link; //causal links
-    ArrayList<Thread> threat;
-    ArrayList<Subgoal> subgoal;  //agenda
-    Action start;
-    Action end;
-    
-    public Object clone(){  
-    try{  
-        return super.clone();  
-    }catch(Exception e){ 
-        return null; 
+    ArrayList<Action> step = new ArrayList<>(); //instantiate action
+    ArrayList<Ordering> ordering = new ArrayList<>();
+    ArrayList<Link> link = new ArrayList<>(); //causal links
+    ArrayList<Threat> threat = new ArrayList<>();
+    ArrayList<Subgoal> subgoal = new ArrayList<>();  //agenda
+    Action start = new Action();
+    Action end = new Action();
+
+    public Object clone() {
+        try {
+            Plan p = (Plan) super.clone();
+            return p;
+        } catch (Exception e) {
+            return null;
+        }
     }
-}
 }
