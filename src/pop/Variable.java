@@ -26,4 +26,12 @@ public class Variable {
         }
     }
     
+    public Variable copy(Variable v){
+        Variable w = new Variable();
+        w.name = v.name;
+        w.value = v.value;
+        w.constraints = (ArrayList<Variable>) v.constraints.clone();
+        return w;
+    }
+    
 }

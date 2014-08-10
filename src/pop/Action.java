@@ -23,12 +23,27 @@ public class Action {
     // int depth;
     // int num-link;
     
-    public Object clone() {
-        try {
-            Action p = (Action) super.clone();
-            return p;
-        } catch (Exception e) {
-            return null;
-        }
+//    @Override
+//    public Object clone() {
+//        try {
+//            Action p = (Action) super.clone();
+//            return p;
+//        } catch (Exception e) {
+//            return null;
+//        }
+//    }
+    public Action copy(Action a){
+        Action ac = new Action();
+        ac.adds = (ArrayList<State>) a.adds.clone();
+        ac.arguments = (ArrayList<Variable>) a.arguments.clone();
+        ac.deletes = (ArrayList<State>) a.deletes.clone();
+        ac.preconditions = (Goal) a.preconditions.clone();
+        ac.type = a.type.toString();
+        
+        return ac;
     }
+    
 }
+    
+    
+

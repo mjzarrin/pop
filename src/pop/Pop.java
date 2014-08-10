@@ -48,26 +48,6 @@ public class Pop {
         // call popObject
     }
 
-    public Plan makeinitialplan() {
-        Plan plan = new Plan();
-        plan.start = init;
-        plan.end = goal;
-        ArrayList<Subgoal> list = new ArrayList<>(goal.preconditions.subgoals);
-        plan.subgoal = list;
-        plan.threat = new ArrayList<>();
-        plan.link = new ArrayList<>();
-        ArrayList<Ordering> ordering = new ArrayList<>();
-        Ordering order = new Ordering();
-        order.before = init;
-        order.after = goal;
-        ordering.add(order);
-        plan.ordering = ordering;
-        plan.step.add(init);
-        plan.step.add(goal);
-//        popObject(plan);
-        return plan;
-    }
-
 //    public void choice(){
 //        
 //        subgoal = plan.subgoal.get(0);
@@ -89,10 +69,11 @@ public class Pop {
             Subgoal subgoal = p.subgoal.get(0);
             p.subgoal.remove(0);
 
-            Action ac = null;
+            Action ac = new Action();
 
             boolean flag = true; // for internal select or external
 
+            // internal choose action
             if (flag) {
 
                 for (int i = 0; i < p.step.size(); i++) {
@@ -129,94 +110,92 @@ public class Pop {
                     }
                 }
             }
+            //  external choose
+            ArrayList<Variable> localbound = new ArrayList<>();
             if (flag) {
                 for (int i = 0; i < operators.size(); i++) {
-                    if (flag) {
-                        for (int j = 0; j < operators.get(i).adds.size(); j++) {
-                            if (operators.get(i).adds.get(j).predicate.equalsIgnoreCase(subgoal.state.predicate)) {
-                            // inja malom mishe ke operatore monaseb vase erza kardane state darone subgoal chi hast
-                                // ye action misazim bar asase parameter haye subgoal instantiate mikonim
-//                                Action ac = null;
-                                ac = operators.get(i);
+                    for (int j = 0; j < operators.get(i).adds.size(); j++) {
+                        if (operators.get(i).adds.get(j).predicate.equalsIgnoreCase(subgoal.state.predicate)) {
 
-                                for (int k = 0; k < ac.adds.get(j).numberOfArg; k++) { // tedade argument ha
-                                    ac.adds.get(j).arguments.get(k).value = subgoal.state.arguments.get(k).value;
+                            ac = copyAction(operators.get(i));
+                            for (int k = 0; k < ac.adds.get(j).numberOfArg; k++) { // tedade argument ha
+                                ac.adds.get(j).arguments.get(k).value = subgoal.state.arguments.get(k).value;
 
-                                }
-                                ArrayList<Variable> localbound = new ArrayList<>();
-                                localbound.addAll(ac.adds.get(j).arguments);
-                                bounded.addAll(ac.adds.get(j).arguments);
+                            }
 
-                                for (int r = 0; r < ac.arguments.size(); r++) {
+                            localbound.addAll(ac.adds.get(j).arguments);
+                            bounded.addAll(ac.adds.get(j).arguments);
 
-                                    for (int y = 0; y < localbound.size(); y++) {
-                                        if (localbound.get(y).name.equalsIgnoreCase(ac.arguments.get(r).name)) {
-                                            ac.arguments.get(r).value = localbound.get(y).value;
-                                        }
-                                    }
+                        }
+                    }
+                }
 
-                                }
+                // meghdar dehi kardan be Ation
+                for (int r = 0; r < ac.arguments.size(); r++) {
 
-                                for (int r = 0; r < ac.adds.size(); r++) {
-                                    for (int a = 0; a < ac.adds.get(r).numberOfArg; a++) {
-                                        for (int y = 0; y < localbound.size(); y++) {
-                                            if (localbound.get(y).name.equalsIgnoreCase(ac.adds.get(r).arguments.get(a).name)) {
-                                                ac.adds.get(r).arguments.get(a).value = localbound.get(y).value;
-                                            }
-                                        }
-                                    }
-                                }
+                    for (int y = 0; y < localbound.size(); y++) {
+                        if (localbound.get(y).name.equalsIgnoreCase(ac.arguments.get(r).name)) {
+                            ac.arguments.get(r).value = localbound.get(y).value;
+                        }
+                    }
 
-                                for (int r = 0; r < ac.deletes.size(); r++) {
-                                    for (int a = 0; a < ac.deletes.get(r).numberOfArg; a++) {
-                                        for (int y = 0; y < localbound.size(); y++) {
-                                            if (localbound.get(y).name.equalsIgnoreCase(ac.deletes.get(r).arguments.get(a).name)) {
-                                                ac.deletes.get(r).arguments.get(a).value = localbound.get(y).value;
-                                            }
-                                        }
-                                    }
-                                }
-                                for (int r = 0; r < ac.preconditions.subgoals.size(); r++) {
-                                    for (int a = 0; a < ac.preconditions.subgoals.get(r).state.numberOfArg; a++) {
+                }
 
-                                        for (int y = 0; y < localbound.size(); y++) {
-                                            if (localbound.get(y).name.equalsIgnoreCase(ac.preconditions.subgoals.get(r).state.arguments.get(a).name)) {
-                                                ac.preconditions.subgoals.get(r).state.arguments.get(a).value = localbound.get(y).value;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                // action inja bound shoode ast 
-                                Link link = new Link();
-                                link.provider = ac;
-                                link.reciver = subgoal.action;
-
-                                p.link.add(link);
-
-                                Ordering order = new Ordering();
-                                order.before = ac;
-                                order.after = subgoal.action;
-                                p.ordering.add(order);
-
-                                p.subgoal.addAll(ac.preconditions.subgoals); // age subgoali bashe ke bound nabashe chi mishe?????
-//                        p.subgoal
-                                p.step.add(ac);
-                                flag = false;
-//                          Action ac = subgoal.action;
-                                // be ezaye har chi moteghayere x hast meghdaresho az zir dar miarim
-                                // moteghayer felan 2 jast add va precondition 2 ta for lazem darim
-                                // subgoale state argument variable 
-                                break;  // vase find kardane actione bad az on break mikonim va edame nemidim
-
+                for (int r = 0; r < ac.adds.size(); r++) {
+                    for (int a = 0; a < ac.adds.get(r).numberOfArg; a++) {
+                        for (int y = 0; y < localbound.size(); y++) {
+                            if (localbound.get(y).name.equalsIgnoreCase(ac.adds.get(r).arguments.get(a).name)) {
+                                ac.adds.get(r).arguments.get(a).value = localbound.get(y).value;
                             }
                         }
                     }
                 }
-            }
 
-            // find threads 
-            for (int i = 0; i < ac.deletes.size(); i++) {
+                for (int r = 0; r < ac.deletes.size(); r++) {
+                    for (int a = 0; a < ac.deletes.get(r).numberOfArg; a++) {
+                        for (int y = 0; y < localbound.size(); y++) {
+                            if (localbound.get(y).name.equalsIgnoreCase(ac.deletes.get(r).arguments.get(a).name)) {
+                                ac.deletes.get(r).arguments.get(a).value = localbound.get(y).value;
+                            }
+                        }
+                    }
+                }
+                for (int r = 0; r < ac.preconditions.subgoals.size(); r++) {
+                    for (int a = 0; a < ac.preconditions.subgoals.get(r).state.numberOfArg; a++) {
+
+                        for (int y = 0; y < localbound.size(); y++) {
+                            if (localbound.get(y).name.equalsIgnoreCase(ac.preconditions.subgoals.get(r).state.arguments.get(a).name)) {
+                                ac.preconditions.subgoals.get(r).state.arguments.get(a).value = localbound.get(y).value;
+                            }
+                        }
+                    }
+                }
+
+                // action inja bound shoode ast 
+                Link link = new Link();
+                link.provider = ac;
+                link.reciver = subgoal.action;
+
+                p.link.add(link);
+
+                Ordering order = new Ordering();
+                order.before = ac;
+                order.after = subgoal.action;
+                p.ordering.add(order);
+
+                p.subgoal.addAll(ac.preconditions.subgoals); // age subgoali bashe ke bound nabashe chi mishe?????
+//                        p.subgoal
+                p.step.add(ac);
+                flag = false;
+//                          Action ac = subgoal.action;
+                // be ezaye har chi moteghayere x hast meghdaresho az zir dar miarim
+                // moteghayer felan 2 jast add va precondition 2 ta for lazem darim
+                // subgoale state argument variable 
+            }
+// find threads 
+            for (int i = 0;
+                    i < ac.deletes.size();
+                    i++) {
                 for (int j = 0; j < backUpPlan.link.size(); j++) {
 
                     for (int k = 0; k < backUpPlan.link.get(j).reciver.preconditions.subgoals.size(); k++) {
@@ -240,7 +219,9 @@ public class Pop {
             }
 
             // resolve threads 
-            for (int i = 0; i < p.threat.size(); i++) {
+            for (int i = 0;
+                    i < p.threat.size();
+                    i++) {
                 Ordering o = new Ordering();
                 if (p.threat.get(i).link.reciver == goal) {
                     o.before = p.threat.get(i).action;
@@ -273,8 +254,11 @@ public class Pop {
     public Plan clone(Plan p) {
 
         Plan backUp = new Plan();
-        backUp.start = (Action) p.start.clone();
-        backUp.end = (Action) p.end.clone();
+//        backUp.start = (Action) p.start.clone();
+//        backUp.end = (Action) p.end.clone();
+        
+        backUp.start = copyAction(init);
+        backUp.end = copyAction(goal);
         backUp.link = (ArrayList<Link>) p.link.clone();
         backUp.ordering = (ArrayList<Ordering>) p.ordering.clone();
         backUp.step = (ArrayList<Action>) p.step.clone();
@@ -487,6 +471,37 @@ public class Pop {
         String[] part = line.split(":");
 
         return part[0];
+    }
+
+    public Plan makeinitialplan() {
+        Plan plan = new Plan();
+        plan.start = init;
+        plan.end = goal;
+        ArrayList<Subgoal> list = new ArrayList<>(goal.preconditions.subgoals);
+        plan.subgoal = list;
+        plan.threat = new ArrayList<>();
+        plan.link = new ArrayList<>();
+        ArrayList<Ordering> ordering = new ArrayList<>();
+        Ordering order = new Ordering();
+        order.before = init;
+        order.after = goal;
+        ordering.add(order);
+        plan.ordering = ordering;
+        plan.step.add(init);
+        plan.step.add(goal);
+//        popObject(plan);
+        return plan;
+    }
+
+    public Action copyAction(Action action) {
+        Action ac = new Action();
+        ac.type = action.type.toString();
+        ac.arguments = (ArrayList<Variable>) action.arguments.clone();
+        ac.deletes = (ArrayList<State>) action.deletes.clone();
+        ac.preconditions = (Goal) action.preconditions.clone();
+        ac.adds = (ArrayList<State>) action.adds.clone();
+        return ac;
+
     }
 
     public void problem() throws FileNotFoundException, IOException {
