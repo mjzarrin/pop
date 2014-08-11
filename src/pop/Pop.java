@@ -118,7 +118,8 @@ public class Pop {
                         if (operators.get(i).adds.get(j).predicate.equalsIgnoreCase(subgoal.state.predicate) && flag) {
 
 //                            ac = copyAction(operators.get(i));
-                            ac = new Action(operators.get(i));
+//                            ac = new Action(operators.get(i));
+                            ac = copyAction(operators.get(i));
                             for (int k = 0; k < ac.adds.get(j).numberOfArg; k++) { // tedade argument ha
                                 ac.adds.get(j).arguments.get(k).value = subgoal.state.arguments.get(k).value;
 
@@ -126,7 +127,7 @@ public class Pop {
 
                             localbound.addAll(ac.adds.get(j).arguments);
                             bounded.addAll(ac.adds.get(j).arguments);
-                            
+
                             flag = false;
                             break;
 
@@ -260,7 +261,7 @@ public class Pop {
         Plan backUp = new Plan();
 //        backUp.start = (Action) p.start.clone();
 //        backUp.end = (Action) p.end.clone();
-        
+
         backUp.start = copyAction(init);
         backUp.end = copyAction(goal);
         backUp.link = (ArrayList<Link>) p.link.clone();
@@ -500,10 +501,55 @@ public class Pop {
     public Action copyAction(Action action) {
         Action ac = new Action();
         ac.type = action.type.toString();
-        ac.arguments = (ArrayList<Variable>) action.arguments.clone();
-        ac.deletes = (ArrayList<State>) action.deletes.clone();
-        ac.preconditions = (Goal) action.preconditions.clone();
-        ac.adds = (ArrayList<State>) action.adds.clone();
+        
+        
+        ArrayList<Variable> arva = new ArrayList<>();
+        for (int i = 0; i < action.arguments.size(); i++) {
+            Variable v = new Variable();
+            v = (Variable) action.arguments.get(i).clone();
+            arva.add(v);
+
+        }
+        ac.arguments.addAll(arva);
+        
+        ArrayList<State> delarr = new ArrayList<>();
+        for (int i = 0; i < action.deletes.size(); i++) {
+            State s = new State();
+            s.numberOfArg = action.deletes.get(i).numberOfArg;
+            ArrayList<Variable> arv = new ArrayList<>();
+            for (int j = 0; j < action.deletes.get(i).arguments.size(); j++) {
+                Variable v = new Variable();
+                v = (Variable) action.deletes.get(i).arguments.get(j).clone();
+                arv.add(v);
+            }
+            s.arguments.addAll(arv);
+            delarr.add(s);
+        }
+        ac.deletes = delarr;
+        
+
+   
+        ArrayList<State> addarr = new ArrayList<>();
+        for (int i = 0; i < action.adds.size(); i++) {
+            State s = new State();
+            s.numberOfArg = action.adds.get(i).numberOfArg;
+            ArrayList<Variable> arv = new ArrayList<>();
+            for (int j = 0; j < action.adds.get(i).arguments.size(); j++) {
+                Variable v = new Variable();
+                v = (Variable) action.adds.get(i).arguments.get(j).clone();
+                arv.add(v);
+            }
+            s.arguments.addAll(arv);
+            addarr.add(s);
+        }
+        ac.adds = addarr;
+        
+        
+        for(int i=0; i<action.preconditions.subgoals.size();i++){
+            
+        }
+        ac.preconditions = action.preconditions;
+       
         return ac;
 
     }
