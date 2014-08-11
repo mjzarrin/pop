@@ -115,9 +115,10 @@ public class Pop {
             if (flag) {
                 for (int i = 0; i < operators.size(); i++) {
                     for (int j = 0; j < operators.get(i).adds.size(); j++) {
-                        if (operators.get(i).adds.get(j).predicate.equalsIgnoreCase(subgoal.state.predicate)) {
+                        if (operators.get(i).adds.get(j).predicate.equalsIgnoreCase(subgoal.state.predicate) && flag) {
 
-                            ac = copyAction(operators.get(i));
+//                            ac = copyAction(operators.get(i));
+                            ac = new Action(operators.get(i));
                             for (int k = 0; k < ac.adds.get(j).numberOfArg; k++) { // tedade argument ha
                                 ac.adds.get(j).arguments.get(k).value = subgoal.state.arguments.get(k).value;
 
@@ -125,6 +126,9 @@ public class Pop {
 
                             localbound.addAll(ac.adds.get(j).arguments);
                             bounded.addAll(ac.adds.get(j).arguments);
+                            
+                            flag = false;
+                            break;
 
                         }
                     }
@@ -173,7 +177,7 @@ public class Pop {
 
                 // action inja bound shoode ast 
                 Link link = new Link();
-                link.provider = ac;
+                link.provider = new Action(ac);
                 link.reciver = subgoal.action;
 
                 p.link.add(link);

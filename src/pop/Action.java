@@ -32,16 +32,21 @@ public class Action {
 //            return null;
 //        }
 //    }
-    public Action copy(Action a){
-        Action ac = new Action();
-        ac.adds = (ArrayList<State>) a.adds.clone();
-        ac.arguments = (ArrayList<Variable>) a.arguments.clone();
-        ac.deletes = (ArrayList<State>) a.deletes.clone();
-        ac.preconditions = (Goal) a.preconditions.clone();
-        ac.type = a.type.toString();
-        
-        return ac;
+    public Action(Action a){
+       
+        this.adds = a.adds;
+        this.arguments =  a.arguments;
+        this.deletes = a.deletes;
+        this.preconditions = a.preconditions;
+        this.type = a.type;
+    
     }
+
+    Action() {
+        
+    }
+
+
     
 }
     

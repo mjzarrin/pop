@@ -15,6 +15,17 @@ public class Link {
     Action reciver = new Action();
     State condition = new State();
     
+    public Link(){
+        
+    }
+    
+    public Link(Link l){
+        this.condition = l.condition;
+        this.provider = l.provider;
+        this.reciver = l.reciver;
+        
+    }
+    
     public Object clone() {
         try {
             Link p = (Link) super.clone();

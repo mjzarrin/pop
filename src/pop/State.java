@@ -14,4 +14,14 @@ public class State {
     String predicate;
     int numberOfArg;
     ArrayList<Variable> arguments = new ArrayList<>();
+    
+    public State(){
+        
+    }
+    public State(State s){
+        this.arguments = s.arguments;
+        this.numberOfArg = s.numberOfArg;
+        this.predicate = s.predicate;
+        
+    }
 }

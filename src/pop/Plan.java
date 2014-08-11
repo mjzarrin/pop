@@ -21,6 +21,20 @@ public class Plan implements Cloneable {
     Action start = new Action();
     Action end = new Action();
 
+    public Plan(){
+        
+    }
+    public Plan(Plan p){
+        this.end = p.end;
+        this.link = p.link;
+        this.ordering = p.ordering;
+        this.start = p.start;
+        this.step = p.step;
+        this.subgoal = p.subgoal;
+        this.threat = p.threat;
+        
+    }
+    
     public Object clone() {
         try {
             Plan p = (Plan) super.clone();

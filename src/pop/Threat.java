@@ -15,7 +15,20 @@ public class Threat {
     Action action = new Action();
     State state = new State();
     
+    
+    
  
+    public Threat(){
+        
+    }
+    
+     
+    public Threat(Threat t){
+        this.action = t.action;
+        this.link = t.link;
+        this.state = t.state;
+    }
+    
     public Object clone() {
         try {
             Thread p = (Thread) super.clone();

@@ -16,6 +16,17 @@ public class Variable {
     String name = new String();
     Object value = new Object();
     ArrayList<Variable> constraints = new ArrayList<>();
+
+    public Variable(Variable v) {
+        this.name = v.name;
+        this.value = v.value;
+        this.constraints = v.constraints;
+    }
+
+    Variable() {
+        
+    }
+    
     
     public Object clone() {
         try {

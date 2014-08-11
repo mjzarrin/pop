@@ -14,6 +14,18 @@ public class Subgoal {
     State state = new State();
     Action action =new Action();
     
+    
+    public Subgoal(){
+        
+    }
+    
+        
+    public Subgoal(Subgoal s){
+        this.action = s.action;
+        this.state = s.state;
+        
+    }
+    
     public Object clone() {
         try {
             Subgoal p = (Subgoal) super.clone();

@@ -17,6 +17,14 @@ import java.util.Set;
  */
 public class Goal {
     ArrayList<Subgoal> subgoals = new ArrayList<>();
+
+    public Goal() {
+    }
+    
+    public Goal(Goal g) {
+        this.subgoals = g.subgoals;
+    }
+     
     
     public Object clone() {
         try {
