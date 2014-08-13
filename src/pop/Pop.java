@@ -545,10 +545,34 @@ public class Pop {
         ac.adds = addarr;
         
         
+        Goal g = new Goal();
+        ArrayList<Subgoal>  arrsub = new ArrayList<>();
         for(int i=0; i<action.preconditions.subgoals.size();i++){
+            Subgoal subg = new Subgoal();
+            Action a = new Action();
+            a = copyAction(action.preconditions.subgoals.get(i).action);
+            
+            
+            State s = new State();
+            s.numberOfArg = action.preconditions.subgoals.get(i).state.numberOfArg;
+            s.predicate = action.preconditions.subgoals.get(i).state.predicate;
+            
+            ArrayList<Variable> var = new ArrayList<>();
+            for( int j = 0 ; j<action.preconditions.subgoals.get(i).state.arguments.size();j++){
+                Variable v = new Variable();
+                v = action.preconditions.subgoals.get(i).state.arguments.get(j);
+                var.add(v);
+            }
+            s.arguments.addAll(var);
+            
+            subg.action = a;
+            subg.state = s;
+            arrsub.add(subg);
+            
             
         }
-        ac.preconditions = action.preconditions;
+        g.subgoals = arrsub;
+        ac.preconditions = g;
        
         return ac;
 
