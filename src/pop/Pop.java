@@ -120,10 +120,16 @@ public class Pop {
 //                            ac = copyAction(operators.get(i));
 //                            ac = new Action(operators.get(i));
                             ac = copyAction(operators.get(i));
+                            
+                            ArrayList<Variable> arrvar = new ArrayList<>();
                             for (int k = 0; k < ac.adds.get(j).numberOfArg; k++) { // tedade argument ha
-                                ac.adds.get(j).arguments.get(k).value = subgoal.state.arguments.get(k).value;
+                                Variable v = new Variable();
+                                v.value = subgoal.state.arguments.get(k).value;
+                                v.name = subgoal.state.arguments.get(k).name;
+                                arrvar.add(v);
 
                             }
+                            ac.arguments.addAll(arrvar);
 
                             localbound.addAll(ac.adds.get(j).arguments);
                             bounded.addAll(ac.adds.get(j).arguments);
@@ -506,7 +512,7 @@ public class Pop {
         ArrayList<Variable> arva = new ArrayList<>();
         for (int i = 0; i < action.arguments.size(); i++) {
             Variable v = new Variable();
-            v = (Variable) action.arguments.get(i).clone();
+            v =  action.arguments.get(i);
             arva.add(v);
 
         }
@@ -519,7 +525,7 @@ public class Pop {
             ArrayList<Variable> arv = new ArrayList<>();
             for (int j = 0; j < action.deletes.get(i).arguments.size(); j++) {
                 Variable v = new Variable();
-                v = (Variable) action.deletes.get(i).arguments.get(j).clone();
+                v = action.deletes.get(i).arguments.get(j);
                 arv.add(v);
             }
             s.arguments.addAll(arv);
@@ -533,10 +539,11 @@ public class Pop {
         for (int i = 0; i < action.adds.size(); i++) {
             State s = new State();
             s.numberOfArg = action.adds.get(i).numberOfArg;
+            s.predicate = action.adds.get(i).predicate;
             ArrayList<Variable> arv = new ArrayList<>();
             for (int j = 0; j < action.adds.get(i).arguments.size(); j++) {
                 Variable v = new Variable();
-                v = (Variable) action.adds.get(i).arguments.get(j).clone();
+                v = action.adds.get(i).arguments.get(j);
                 arv.add(v);
             }
             s.arguments.addAll(arv);
@@ -550,7 +557,7 @@ public class Pop {
         for(int i=0; i<action.preconditions.subgoals.size();i++){
             Subgoal subg = new Subgoal();
             Action a = new Action();
-            a = copyAction(action.preconditions.subgoals.get(i).action);
+            a = action.preconditions.subgoals.get(i).action;
             
             
             State s = new State();
