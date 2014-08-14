@@ -37,6 +37,7 @@ public class Pop {
         popObject.domain();
         popObject.problem();
         Plan plan = popObject.makeinitialplan();
+        System.out.println("POP Started");
         Plan lastPlan = popObject.pop(plan);
         // list of all predicators                                                                          Done
         // list of all actions                                                                              Done
@@ -58,7 +59,7 @@ public class Pop {
         //1- terminatrin //size subgoal ==0
         if (p.subgoal.isEmpty()) {
 
-            System.out.println("Fuck");
+            System.out.println("End");
             return p;
 
         } else {
@@ -66,31 +67,43 @@ public class Pop {
             Plan backUpPlan = clone(p);
 
             //2- select from subgoals (choice)
-            Subgoal subgoal = p.subgoal.get(0);
-            p.subgoal.remove(0);
+            Subgoal subgoal;
+            if(p.step.size() > 2){
+                 subgoal= p.subgoal.get(p.subgoal.size() - 1);
+                p.subgoal.remove(p.subgoal.size() - 1); 
+            }else{
+                subgoal = p.subgoal.get(0);
+                p.subgoal.remove(0); 
+            }
+            
+            System.out.println("    Subgoal : "+ subgoal.state.predicate + " in action " + subgoal.action.type);
 
             Action ac = new Action();
 
             boolean flag = true; // for internal select or external
 
             // internal choose action
+            ArrayList<Action> internalSelect = internal(p);
+                    // opertators and steps unordering
+
             if (flag) {
 
-                for (int i = 0; i < p.step.size(); i++) {
-                    for (int j = 0; j < p.step.get(i).adds.size(); j++) {
-                        if (p.step.get(i).adds.get(j).predicate.equalsIgnoreCase(subgoal.state.predicate)) {
+                for (int i = 0; i < internalSelect.size(); i++) {
+                    for (int j = 0; j < internalSelect.get(i).adds.size(); j++) {
+                        if (internalSelect.get(i).adds.get(j).predicate.equalsIgnoreCase(subgoal.state.predicate)) {
                             int temp = 0;
                             int k;
                             for (k = 0; k < subgoal.state.numberOfArg; k++) {
-                                if (p.step.get(i).adds.get(j).arguments.get(k).value.equals(subgoal.state.arguments.get(k).value)) {
+                                if (internalSelect.get(i).adds.get(j).arguments.get(k).value.equals(subgoal.state.arguments.get(k).value) || subgoal.state.arguments.get(k).value == null) {
                                     temp++;
                                 } else {
                                     break;
                                 }
                             }
-                            if (temp == k - 1) {
+                            if ((temp == k && temp != 0) || subgoal.state.numberOfArg == 0 ) {
 //                                Action ac = null;
-                                ac = p.step.get(i);
+                                ac = internalSelect.get(i);
+                                System.out.println("Internal Action Selected: " + ac.type + " - args :" + (ac.arguments.size() > 0 ? ac.arguments.get(0).value : "") + " , " + (ac.arguments.size() > 1 ? ac.arguments.get(1).value : "") + " for : " + subgoal.state.predicate);
 
                                 Link link = new Link();
                                 link.provider = ac;
@@ -111,6 +124,9 @@ public class Pop {
                 }
             }
             //  external choose
+
+            external();
+            //
             ArrayList<Variable> localbound = new ArrayList<>();
             if (flag) {
                 for (int i = 0; i < operators.size(); i++) {
@@ -120,19 +136,19 @@ public class Pop {
 //                            ac = copyAction(operators.get(i));
 //                            ac = new Action(operators.get(i));
                             ac = copyAction(operators.get(i));
-                            
+
                             ArrayList<Variable> arrvar = new ArrayList<>();
                             for (int k = 0; k < ac.adds.get(j).numberOfArg; k++) { // tedade argument ha
                                 Variable v = new Variable();
                                 v.value = subgoal.state.arguments.get(k).value;
                                 v.name = subgoal.state.arguments.get(k).name;
                                 arrvar.add(v);
+                                ac.arguments.get(k).value = v.value;
 
                             }
-                            ac.arguments.addAll(arrvar);
 
-                            localbound.addAll(ac.adds.get(j).arguments);
-                            bounded.addAll(ac.adds.get(j).arguments);
+                            localbound.addAll(ac.arguments);
+                            bounded.addAll(ac.arguments);
 
                             flag = false;
                             break;
@@ -194,9 +210,18 @@ public class Pop {
                 order.after = subgoal.action;
                 p.ordering.add(order);
 
+//                for(int i=0; i<ac.preconditions.subgoals.size();i++){
+//                    for(int j=0; j<ac.preconditions.subgoals.get(j).state.numberOfArg;j++){
+//                        if(ac.preconditions.subgoals.get(j).state.arguments.get(j).value != null){
+//                            p.subgoal.add(ac.preconditions.subgoals.get(i).state);
+//                        }
+//               
+//                    }
+//                }
                 p.subgoal.addAll(ac.preconditions.subgoals); // age subgoali bashe ke bound nabashe chi mishe?????
 //                        p.subgoal
                 p.step.add(ac);
+                System.out.println("add External Action: " + ac.type + " - args :" + ac.arguments.get(0).value + " , " + (ac.arguments.size() > 1 ? ac.arguments.get(1).value : "") + " for : " + subgoal.state.predicate);
                 flag = false;
 //                          Action ac = subgoal.action;
                 // be ezaye har chi moteghayere x hast meghdaresho az zir dar miarim
@@ -218,6 +243,7 @@ public class Pop {
                                     thread.link = backUpPlan.link.get(j);
                                     thread.action = ac;
                                     thread.state = ac.deletes.get(i);
+                                    System.err.println("        Thread found : in link between " + thread.link.provider.type + " to " + thread.link.reciver.type + "for state " + thread.state.predicate + " in action " + thread.action.type  );
                                     p.threat.add(thread);
                                     break;
                                 }
@@ -507,21 +533,23 @@ public class Pop {
     public Action copyAction(Action action) {
         Action ac = new Action();
         ac.type = action.type.toString();
-        
-        
+
+        // arguments 
         ArrayList<Variable> arva = new ArrayList<>();
         for (int i = 0; i < action.arguments.size(); i++) {
             Variable v = new Variable();
-            v =  action.arguments.get(i);
+            v = action.arguments.get(i);
             arva.add(v);
 
         }
         ac.arguments.addAll(arva);
-        
+
+//        deletelist
         ArrayList<State> delarr = new ArrayList<>();
         for (int i = 0; i < action.deletes.size(); i++) {
             State s = new State();
             s.numberOfArg = action.deletes.get(i).numberOfArg;
+            s.predicate = action.deletes.get(i).predicate;
             ArrayList<Variable> arv = new ArrayList<>();
             for (int j = 0; j < action.deletes.get(i).arguments.size(); j++) {
                 Variable v = new Variable();
@@ -532,9 +560,8 @@ public class Pop {
             delarr.add(s);
         }
         ac.deletes = delarr;
-        
 
-   
+        // addlist
         ArrayList<State> addarr = new ArrayList<>();
         for (int i = 0; i < action.adds.size(); i++) {
             State s = new State();
@@ -550,38 +577,118 @@ public class Pop {
             addarr.add(s);
         }
         ac.adds = addarr;
-        
-        
+
+        // preconditions
         Goal g = new Goal();
-        ArrayList<Subgoal>  arrsub = new ArrayList<>();
-        for(int i=0; i<action.preconditions.subgoals.size();i++){
+        ArrayList<Subgoal> arrsub = new ArrayList<>();
+        for (int i = 0; i < action.preconditions.subgoals.size(); i++) {
             Subgoal subg = new Subgoal();
             Action a = new Action();
             a = action.preconditions.subgoals.get(i).action;
-            
-            
+
             State s = new State();
             s.numberOfArg = action.preconditions.subgoals.get(i).state.numberOfArg;
             s.predicate = action.preconditions.subgoals.get(i).state.predicate;
-            
+
             ArrayList<Variable> var = new ArrayList<>();
-            for( int j = 0 ; j<action.preconditions.subgoals.get(i).state.arguments.size();j++){
+            for (int j = 0; j < action.preconditions.subgoals.get(i).state.arguments.size(); j++) {
                 Variable v = new Variable();
                 v = action.preconditions.subgoals.get(i).state.arguments.get(j);
                 var.add(v);
             }
             s.arguments.addAll(var);
-            
+
             subg.action = a;
             subg.state = s;
             arrsub.add(subg);
-            
-            
+
         }
         g.subgoals = arrsub;
         ac.preconditions = g;
-       
+
         return ac;
+
+    }
+
+    public ArrayList<Action> internal(Plan p) {
+        ArrayList<Action> selectAction = new ArrayList<>();
+        ArrayList<Double> random = new ArrayList<>();
+        ArrayList<Integer> index = new ArrayList<>();
+        for (int i = 0; i < p.step.size(); i++) {
+            Random r = new Random();
+            double d = r.nextDouble();
+            random.add(d);
+            index.add(i);
+            Action a = p.step.get(i);
+            selectAction.add(a);
+        }
+
+        int j;
+        boolean flag = true;   // set flag to true to begin first pass
+        double temp;   //holding variable
+//        int ind;
+        Action actemp;
+        while (flag) {
+            flag = false;    //set flag to false awaiting a possible swap
+            for (j = 0; j < random.size() - 1; j++) {
+                if (random.get(j) < random.get(j + 1)) // change to > for ascending sort
+                {
+                    temp = random.get(j);                //swap elements
+                    random.set(j, random.get(j + 1));
+                    random.set(j + 1, temp);
+
+//                    ind = index.get(j);
+//                    index.set(j, index.get(j+1));
+//                    index.set(j+1, ind);
+                    actemp = selectAction.get(j);
+                    selectAction.set(j, selectAction.get(j + 1));
+                    selectAction.set(j + 1, actemp);
+
+                    flag = true;              //shows a swap occurred  
+                }
+            }
+        }
+        return selectAction;
+
+    }
+
+    public void external() {
+        ArrayList<Action> ext = new ArrayList<>();
+        ArrayList<Double> random = new ArrayList<>();
+
+        for (int i = 0; i < this.operators.size(); i++) {
+
+            Random r = new Random();
+            double d = r.nextDouble();
+            random.add(d);
+
+        }
+
+        int j;
+        boolean flag = true;   // set flag to true to begin first pass
+        double temp;   //holding variable
+//        int ind;
+        Action actemp;
+        while (flag) {
+            flag = false;    //set flag to false awaiting a possible swap
+            for (j = 0; j < random.size() - 1; j++) {
+                if (random.get(j) < random.get(j + 1)) // change to > for ascending sort
+                {
+                    temp = random.get(j);                //swap elements
+                    random.set(j, random.get(j + 1));
+                    random.set(j + 1, temp);
+
+//                    ind = index.get(j);
+//                    index.set(j, index.get(j+1));
+//                    index.set(j+1, ind);
+                    actemp = this.operators.get(j);
+                    this.operators.set(j, this.operators.get(j + 1));
+                    this.operators.set(j + 1, actemp);
+
+                    flag = true;              //shows a swap occurred  
+                }
+            }
+        }
 
     }
 
@@ -641,8 +748,7 @@ public class Pop {
                     }
                     init.adds = adds;
 
-                    operators.add(init);
-
+//                    operators.add(init);
                 }
 //                operators.add(init);
                 if (line.contains("GOALS")) {
@@ -688,7 +794,7 @@ public class Pop {
                     goals.subgoals = subgoals;
 
                     goal.preconditions = goals;
-                    operators.add(goal);
+//                    operators.add(goal);
 
                 }
 
