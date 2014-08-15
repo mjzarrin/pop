@@ -24,7 +24,7 @@ public class Variable {
     }
 
     Variable() {
-        
+        value = null;
     }
     
     
