@@ -10,7 +10,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 /**
  *
@@ -101,7 +103,7 @@ public class Pop {
                                 int temp = 0;
                                 int k;
                                 ArrayList<Variable> arvar = new ArrayList<>();
-
+                                ArrayList<Object> forbidValue = new ArrayList<>();
                                 for (k = 0; k < subgoal.state.numberOfArg; k++) {
                                     if (internalSelect.get(i).adds.get(j).arguments.get(k).value == (subgoal.state.arguments.get(k).value)) {
                                         temp++;
@@ -110,15 +112,23 @@ public class Pop {
                                         Variable v = new Variable();
                                         v.name = subgoal.state.arguments.get(k).name;
                                         v.value = internalSelect.get(i).adds.get(j).arguments.get(k).value;
-                                        arvar.add(v);
-                                        temp++;
+                                       
+                                        if(!forbidValue.contains(v.value)){
+                                            arvar.add(v);
+                                             temp++;
+                                             forbidValue.add(v.value);
+                                        }
+                                         
 
                                     } else if (internalSelect.get(i).adds.get(j).arguments.get(k).value == null) {
                                         Variable v = new Variable();
                                         v.name = subgoal.state.arguments.get(k).name;
                                         v.value = subgoal.state.arguments.get(k).value;
-                                        arvar.add(v);
-                                        temp++;
+                                        if(!forbidValue.contains(v.value)){
+                                            arvar.add(v);
+                                            temp++;
+                                             forbidValue.add(v.value);
+                                        }
                                     } else {
                                         break;
                                     }
@@ -193,7 +203,7 @@ public class Pop {
                                 //                            ac = copyAction(operators.get(i));
                                 //                            ac = new Action(operators.get(i));
                                 ac = copyAction(operators.get(i));
-
+                         
                                 ArrayList<Variable> arrvar = new ArrayList<>();
                                 for (int k = 0; k < ac.adds.get(j).numberOfArg; k++) { // tedade argument ha
                                     Variable v = new Variable();
@@ -436,16 +446,23 @@ public class Pop {
             int ind = check.indexOf(false);
             check.set(ind, true);
             Action a = forbiddenAction.get(ind);
-
-            for (int i = 0; i < p.ordering.size(); i++) {
-
-                if (p.ordering.get(i).before == a) {
-
-                    forbiddenAction.add(p.ordering.get(i).after);
-                    check.add(true);
-                }
-
+            
+            for(Ordering ord : p.ordering ){
+               if(ord.before == a){
+                   forbiddenAction.add(ord.after);
+                   check.add(true);
+               }
             }
+
+//            for (int i = 0; i < p.ordering.size(); i++) {
+//
+//                if (p.ordering.get(i).before == a) {
+//                    p.ordering.
+//                    forbiddenAction.add(p.ordering.get(i).after);
+//                    check.add(true);
+//                }
+//
+//            }
         }
         canDone = !forbiddenAction.contains(ac);
 
@@ -461,7 +478,7 @@ public class Pop {
         backUp.start = copyAction(init);
         backUp.end = copyAction(goal);
         backUp.link = (ArrayList<Link>) p.link.clone();
-        backUp.ordering = (ArrayList<Ordering>) p.ordering.clone();
+        backUp.ordering = (Set<Ordering>) p.ordering;
         backUp.step = (ArrayList<Action>) p.step.clone();
         backUp.subgoal = (ArrayList<Subgoal>) p.subgoal.clone();
         backUp.threat = (ArrayList<Threat>) p.threat.clone();
@@ -743,7 +760,7 @@ public class Pop {
         plan.subgoal = list;
         plan.threat = new ArrayList<>();
         plan.link = new ArrayList<>();
-        ArrayList<Ordering> ordering = new ArrayList<>();
+        Set<Ordering> ordering = new HashSet<>();
         Ordering order = new Ordering();
         order.before = init;
         order.after = goal;
@@ -845,8 +862,8 @@ public class Pop {
             double d = r.nextDouble();
             random.add(d);
             index.add(i);
-            Action a = p.step.get(i);
-            selectAction.add(a);
+            
+            selectAction.add(p.step.get(i));
         }
 
         int j;

@@ -14,7 +14,8 @@ import java.util.*;
 public class Plan implements Cloneable {
 
     ArrayList<Action> step = new ArrayList<>(); //instantiate action
-    ArrayList<Ordering> ordering = new ArrayList<>();
+//    ArrayList<Ordering> ordering = new ArrayList<>();
+    Set<Ordering> ordering = new HashSet<>();
     ArrayList<Link> link = new ArrayList<>(); //causal links
     ArrayList<Threat> threat = new ArrayList<>();
     ArrayList<Subgoal> subgoal = new ArrayList<>();  //agenda
@@ -24,16 +25,16 @@ public class Plan implements Cloneable {
     public Plan(){
         
     }
-    public Plan(Plan p){
-        this.end = p.end;
-        this.link = p.link;
-        this.ordering = p.ordering;
-        this.start = p.start;
-        this.step = p.step;
-        this.subgoal = p.subgoal;
-        this.threat = p.threat;
-        
-    }
+//    public Plan(Plan p){
+//        this.end = p.end;
+//        this.link = p.link;
+//        this.ordering = p.ordering;
+//        this.start = p.start;
+//        this.step = p.step;
+//        this.subgoal = p.subgoal;
+//        this.threat = p.threat;
+//        
+//    }
     
     public Object clone() {
         try {
