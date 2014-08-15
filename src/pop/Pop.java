@@ -334,15 +334,25 @@ public class Pop {
             for (int j = 0; j < backUpPlan.link.size(); j++) {
                 for (int i = 0; i < ac.deletes.size(); i++) {
 
-                    if (backUpPlan.link.get(j).condition.predicate == ac.deletes.get(i).predicate) {
-                        Threat thread = new Threat();
+                    if (backUpPlan.link.get(j).condition.predicate.equals(ac.deletes.get(i).predicate)) {
+                        int temp=0;
+                        int k=0;
+                        for(  ; k<ac.deletes.get(i).numberOfArg; k++){
+                            if(ac.deletes.get(i).arguments.get(k).value == backUpPlan.link.get(j).condition.arguments.get(k).value){
+                               temp++; 
+                            }
+                        }
+                        if( k == temp && temp != 0 || ac.deletes.get(i).numberOfArg == 0){
+                            Threat thread = new Threat();
 
-                        thread.link = backUpPlan.link.get(j);
-                        thread.action = ac;
-                        thread.state = ac.deletes.get(i);
-                        System.out.println("        Thread found : in link between " + thread.link.provider.type + " to " + thread.link.reciver.type + "for state " + thread.state.predicate + " in action " + thread.action.type);
-                        p.threat.add(thread);
-//                        break;
+                            thread.link = backUpPlan.link.get(j);
+                            thread.action = ac;
+                            thread.state = ac.deletes.get(i);
+                            System.out.println("        Thread found : in link between " + thread.link.provider.type + " to " + thread.link.reciver.type + "for state " + thread.state.predicate + " in action " + thread.action.type);
+                            p.threat.add(thread);
+                              break; // age chand ta thread az ye action roye ye link rokh dad , faghat yekisho mizare to thread ha , badan mishe behtaresh kard.
+                        }
+                        
 
                     }
 
