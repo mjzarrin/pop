@@ -123,11 +123,12 @@ public class Pop {
                                         break;
                                     }
                                 }
-                                if (((temp == k && temp != 0) || subgoal.state.numberOfArg == 0) && linkAndOrderTest(p, internalSelect.get(i), subgoal) ) {
+                                boolean canDone = linkAndOrderTest(p, internalSelect.get(i), subgoal);
+                                if (((temp == k && temp != 0) || subgoal.state.numberOfArg == 0) && canDone) {
 //                                Action ac = null;
-                                    
+
                                     ac = internalSelect.get(i);
-                                    
+
                                     if (arvar.size() > 0) {
                                         localbound = arvar;
                                         for (int t = 0; t < p.step.size(); t++) {
@@ -219,6 +220,7 @@ public class Pop {
                 Link link = new Link();
                 link.provider = new Action(ac);
                 link.reciver = subgoal.action;
+                link.condition = subgoal.state;
 
                 p.link.add(link);
 
@@ -329,26 +331,37 @@ public class Pop {
 
         } else { // for externall add
 
-            for (int i = 0; i < ac.deletes.size(); i++) {
-                for (int j = 0; j < backUpPlan.link.size(); j++) {
+            for (int j = 0; j < backUpPlan.link.size(); j++) {
+                for (int i = 0; i < ac.deletes.size(); i++) {
 
-                    for (int k = 0; k < backUpPlan.link.get(j).reciver.preconditions.subgoals.size(); k++) {
-                        if (backUpPlan.link.get(j).reciver.preconditions.subgoals.get(k).state.predicate.equalsIgnoreCase(ac.deletes.get(i).predicate)) {
-                            for (int l = 0; l < ac.deletes.get(i).numberOfArg; l++) {
-                                if (ac.deletes.get(i).arguments.get(l).value == backUpPlan.link.get(j).reciver.preconditions.subgoals.get(k).state.arguments.get(l).value) {
-                                    Threat thread = new Threat();
+                    if (backUpPlan.link.get(j).condition.predicate == ac.deletes.get(i).predicate) {
+                        Threat thread = new Threat();
 
-                                    thread.link = backUpPlan.link.get(j);
-                                    thread.action = ac;
-                                    thread.state = ac.deletes.get(i);
-                                    System.out.println("        Thread found : in link between " + thread.link.provider.type + " to " + thread.link.reciver.type + "for state " + thread.state.predicate + " in action " + thread.action.type);
-                                    p.threat.add(thread);
-                                    break;
-                                }
-                            }
-                        }
+                        thread.link = backUpPlan.link.get(j);
+                        thread.action = ac;
+                        thread.state = ac.deletes.get(i);
+                        System.out.println("        Thread found : in link between " + thread.link.provider.type + " to " + thread.link.reciver.type + "for state " + thread.state.predicate + " in action " + thread.action.type);
+                        p.threat.add(thread);
+//                        break;
+
                     }
 
+//                    for (int k = 0; k < backUpPlan.link.get(j).reciver.preconditions.subgoals.size(); k++) {
+//                        if (backUpPlan.link.get(j).reciver.preconditions.subgoals.get(k).state.predicate.equalsIgnoreCase(ac.deletes.get(i).predicate)) {
+//                            for (int l = 0; l < ac.deletes.get(i).numberOfArg; l++) {
+//                                if (ac.deletes.get(i).arguments.get(l).value == backUpPlan.link.get(j).reciver.preconditions.subgoals.get(k).state.arguments.get(l).value) {
+//                                    Threat thread = new Threat();
+//
+//                                    thread.link = backUpPlan.link.get(j);
+//                                    thread.action = ac;
+//                                    thread.state = ac.deletes.get(i);
+//                                    System.out.println("        Thread found : in link between " + thread.link.provider.type + " to " + thread.link.reciver.type + "for state " + thread.state.predicate + " in action " + thread.action.type);
+//                                    p.threat.add(thread);
+//                                    break;
+//                                }
+//                            }
+//                        }
+//                    }
                 }
 
             }
