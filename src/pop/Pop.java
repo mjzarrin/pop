@@ -59,7 +59,7 @@ public class Pop {
         //1- terminatrin //size subgoal ==0
         if (p.subgoal.isEmpty()) {
 
-            System.out.println("End");
+            System.out.println("Fuck");
 //            order(p);
 
             return p;
@@ -74,8 +74,9 @@ public class Pop {
 //                subgoal = p.subgoal.get(p.subgoal.size() - 1);
 //                p.subgoal.remove(p.subgoal.size() - 1);
 //            } else {
-            subgoal = p.subgoal.get(0);
-            p.subgoal.remove(0);
+//            subgoal = p.subgoal.get(0);
+//            p.subgoal.remove(0);
+            subgoal = leastCommitmentStrategy(p.subgoal);
 //            }
 
             System.out.println("    Subgoal : " + subgoal.state.predicate + " in action " + subgoal.action.type);
@@ -88,13 +89,19 @@ public class Pop {
             // internal choose action
             ArrayList<Action> internalSelect = internal(p);
             // opertators and steps unordering
-            boolean internalFound = true;
+            boolean internalFound = false;
             if (notFoundAction) {
 
                 for (int i = 0; i < internalSelect.size(); i++) {
+
+                    if (linkAndOrderTest() == false) {
+                        continue;
+                    }
+
                     if (notFoundAction) {
                         for (int j = 0; j < internalSelect.get(i).adds.size(); j++) {
                             if (internalSelect.get(i).adds.get(j).predicate.equalsIgnoreCase(subgoal.state.predicate)) {
+
                                 int temp = 0;
                                 int k;
                                 ArrayList<Variable> arvar = new ArrayList<>();
@@ -110,6 +117,12 @@ public class Pop {
                                         arvar.add(v);
                                         temp++;
 
+                                    } else if (internalSelect.get(i).adds.get(j).arguments.get(k).value == null) {
+                                        Variable v = new Variable();
+                                        v.name = subgoal.state.arguments.get(k).name;
+                                        v.value = subgoal.state.arguments.get(k).value;
+                                        arvar.add(v);
+                                        temp++;
                                     } else {
                                         break;
                                     }
@@ -147,15 +160,19 @@ public class Pop {
                                     Link link = new Link();
                                     link.provider = ac;
                                     link.reciver = subgoal.action;
+                                    link.condition = subgoal.state;
 
                                     p.link.add(link);
 
+//                                    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //                                    Ordering order = new Ordering();
 //                                    order.before = ac;
 //                                    order.after = subgoal.action;
 //                                    p.ordering.add(order);
                                     internalFound = true;
                                     notFoundAction = false;
+                                    findThread(p, backUpPlan, ac, link, internalFound);
+
                                     break;
                                 }
 
@@ -211,7 +228,6 @@ public class Pop {
 //                order.before = ac;
 //                order.after = subgoal.action;
 //                p.ordering.add(order);
-
 //                for(int i=0; i<ac.preconditions.subgoals.size();i++){
 //                    for(int j=0; j<ac.preconditions.subgoals.get(j).state.numberOfArg;j++){
 //                        if(ac.preconditions.subgoals.get(j).state.arguments.get(j).value != null){
@@ -225,71 +241,169 @@ public class Pop {
                 p.step.add(ac);
                 System.out.println("add External Action: " + ac.type + " - args :" + ac.arguments.get(0).value + " , " + (ac.arguments.size() > 1 ? ac.arguments.get(1).value : "") + " for : " + subgoal.state.predicate);
                 notFoundAction = false;
+                findThread(p, backUpPlan, ac, link, internalFound);
+
 //                          Action ac = subgoal.action;
                 // be ezaye har chi moteghayere x hast meghdaresho az zir dar miarim
                 // moteghayer felan 2 jast add va precondition 2 ta for lazem darim
                 // subgoale state argument variable 
             }
 // find threads 
-            if (internalFound == false) {
-                for (int i = 0;
-                        i < ac.deletes.size();
-                        i++) {
-                    for (int j = 0; j < backUpPlan.link.size(); j++) {
 
-                        for (int k = 0; k < backUpPlan.link.get(j).reciver.preconditions.subgoals.size(); k++) {
-                            if (backUpPlan.link.get(j).reciver.preconditions.subgoals.get(k).state.predicate.equalsIgnoreCase(ac.deletes.get(i).predicate)) {
-                                for (int l = 0; l < ac.deletes.get(i).numberOfArg; l++) {
-                                    if (ac.deletes.get(i).arguments.get(l).value == backUpPlan.link.get(j).reciver.preconditions.subgoals.get(k).state.arguments.get(l).value) {
-                                        Threat thread = new Threat();
-
-                                        thread.link = backUpPlan.link.get(j);
-                                        thread.action = ac;
-                                        thread.state = ac.deletes.get(i);
-                                        System.out.println("        Thread found : in link between " + thread.link.provider.type + " to " + thread.link.reciver.type + "for state " + thread.state.predicate + " in action " + thread.action.type);
-                                        p.threat.add(thread);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-
-                }
-
-                // resolve threads 
-                for (int i = 0;
-                        i < p.threat.size();
-                        i++) {
-                    Ordering o = new Ordering();
-                    if (p.threat.get(i).link.reciver == goal) {
-                        o.before = p.threat.get(i).action;
-                        o.after = p.threat.get(i).link.provider;
-                    } else if (p.threat.get(i).link.provider == init) {
-                        o.before = p.threat.get(i).link.reciver;
-                        o.after = p.threat.get(i).action;
-                    } else {  // inja bayad ezafe kard taghire constarin
-                        Random r = new Random();
-                        double rand = r.nextDouble();
-                        rand = 0.25;
-                        if (rand < 0.5) {
-                            o.before = p.threat.get(i).action;
-                            o.after = p.threat.get(i).link.provider;
-
-                        } else {
-                            o.before = p.threat.get(i).link.reciver;
-                            o.after = p.threat.get(i).action;
-                        }
-                    }
-                    p.ordering.add(o);
-                }
-            }
-
+//            if (internalFound == false) {
+//                for (int i = 0;
+//                        i < ac.deletes.size();
+//                        i++) {
+//                    for (int j = 0; j < backUpPlan.link.size(); j++) {
+//
+//                        for (int k = 0; k < backUpPlan.link.get(j).reciver.preconditions.subgoals.size(); k++) {
+//                            if (backUpPlan.link.get(j).reciver.preconditions.subgoals.get(k).state.predicate.equalsIgnoreCase(ac.deletes.get(i).predicate)) {
+//                                for (int l = 0; l < ac.deletes.get(i).numberOfArg; l++) {
+//                                    if (ac.deletes.get(i).arguments.get(l).value == backUpPlan.link.get(j).reciver.preconditions.subgoals.get(k).state.arguments.get(l).value) {
+//                                        Threat thread = new Threat();
+//
+//                                        thread.link = backUpPlan.link.get(j);
+//                                        thread.action = ac;
+//                                        thread.state = ac.deletes.get(i);
+//                                        System.out.println("        Thread found : in link between " + thread.link.provider.type + " to " + thread.link.reciver.type + "for state " + thread.state.predicate + " in action " + thread.action.type);
+//                                        p.threat.add(thread);
+//                                        break;
+//                                    }
+//                                }
+//                            }
+//                        }
+//
+//                    }
+//
+//                }
+//
+//                // resolve threads 
+//                for (int i = 0;
+//                        i < p.threat.size();
+//                        i++) {
+//                    Ordering o = new Ordering();
+//                    if (p.threat.get(i).link.reciver == goal) {
+//                        o.before = p.threat.get(i).action;
+//                        o.after = p.threat.get(i).link.provider;
+//                    } else if (p.threat.get(i).link.provider == init) {
+//                        o.before = p.threat.get(i).link.reciver;
+//                        o.after = p.threat.get(i).action;
+//                    } else {  // inja bayad ezafe kard taghire constarin
+//                        Random r = new Random();
+//                        double rand = r.nextDouble();
+//                        rand = 0.25;
+//                        if (rand < 0.5) {
+//                            o.before = p.threat.get(i).action;
+//                            o.after = p.threat.get(i).link.provider;
+//
+//                        } else {
+//                            o.before = p.threat.get(i).link.reciver;
+//                            o.after = p.threat.get(i).action;
+//                        }
+//                    }
+//                    p.ordering.add(o);
+//                }
+//            }
             //6- recall popObject
             pop(p);
         }
         return p;
+    }
+
+    public void findThread(Plan p, Plan backUpPlan, Action ac, Link link, boolean internalfound) {
+        if (internalfound) {
+
+            for (int i = 0; i < p.step.size(); i++) {
+                for (int j = 0; j < p.step.get(i).deletes.size(); j++) {
+                    if (p.step.get(i).deletes.get(j) == link.condition) {
+                        Threat thread = new Threat();
+                        thread.link = link;
+                        thread.action = p.step.get(i);
+                        thread.state = link.condition;
+                        System.out.println("        Thread found : in link between " + thread.link.provider.type + " to " + thread.link.reciver.type + "for state " + thread.state.predicate + " in action " + thread.action.type);
+                        p.threat.add(thread);
+                        break;
+
+                    }
+
+                }
+            }
+
+        } else { // for externall add
+
+            for (int i = 0; i < ac.deletes.size(); i++) {
+                for (int j = 0; j < backUpPlan.link.size(); j++) {
+
+                    for (int k = 0; k < backUpPlan.link.get(j).reciver.preconditions.subgoals.size(); k++) {
+                        if (backUpPlan.link.get(j).reciver.preconditions.subgoals.get(k).state.predicate.equalsIgnoreCase(ac.deletes.get(i).predicate)) {
+                            for (int l = 0; l < ac.deletes.get(i).numberOfArg; l++) {
+                                if (ac.deletes.get(i).arguments.get(l).value == backUpPlan.link.get(j).reciver.preconditions.subgoals.get(k).state.arguments.get(l).value) {
+                                    Threat thread = new Threat();
+
+                                    thread.link = backUpPlan.link.get(j);
+                                    thread.action = ac;
+                                    thread.state = ac.deletes.get(i);
+                                    System.out.println("        Thread found : in link between " + thread.link.provider.type + " to " + thread.link.reciver.type + "for state " + thread.state.predicate + " in action " + thread.action.type);
+                                    p.threat.add(thread);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+            }
+
+        }
+
+        // resolve threads 
+        for (int i = 0;
+                i < p.threat.size();
+                i++) {
+            Ordering o = new Ordering();
+            if (p.threat.get(i).link.reciver == goal) {
+                o.before = p.threat.get(i).action;
+                o.after = p.threat.get(i).link.provider;
+            } else if (p.threat.get(i).link.provider == init) {
+                o.before = p.threat.get(i).link.reciver;
+                o.after = p.threat.get(i).action;
+            } else {  // inja bayad ezafe kard taghire constarin
+                Random r = new Random();
+                double rand = r.nextDouble();
+                rand = 0.25;
+                if (rand < 0.5) {
+                    o.before = p.threat.get(i).action;
+                    o.after = p.threat.get(i).link.provider;
+
+                } else {
+                    o.before = p.threat.get(i).link.reciver;
+                    o.after = p.threat.get(i).action;
+                }
+            }
+            p.ordering.add(o);
+        }
+    }
+
+    public boolean linkAndOrderTest(Plan p, Action ac, Subgoal subgoal) {
+
+        boolean canDone = true;
+        for (int i = 0; i < p.link.size(); i++) {
+            if (p.link.get(i).reciver == ac) {
+
+                if (p.link.get(i).reciver == subgoal.action) {
+                    canDone = false; // in vase ye marhale
+                }
+            }
+
+        }
+        
+        
+        
+        
+        
+
+        return canDone;
     }
 
     public Plan clone(Plan p) {
@@ -307,6 +421,22 @@ public class Pop {
         backUp.threat = (ArrayList<Threat>) p.threat.clone();
 
         return backUp;
+    }
+
+    public Subgoal leastCommitmentStrategy(ArrayList<Subgoal> subgoals) {
+
+        int[] numberOfPredicates;
+        numberOfPredicates = new int[subgoals.size()];
+        Subgoal s = subgoals.get(0);
+        int index = 0;
+        for (int i = 1; i < subgoals.size(); i++) {
+            if (subgoals.get(i).state.numberOfArg > subgoals.get(i - 1).state.numberOfArg) {
+                s = subgoals.get(i);
+                index = i;
+            }
+        }
+        subgoals.remove(index);
+        return s;
     }
 
     public Action boundAction(Action ac, ArrayList<Variable> localbound) {
@@ -856,14 +986,19 @@ public class Pop {
 //            System.out.println(everything);
         }
     }
-//
-//    public void order(Plan p) {
-//        ArrayList<Action> ord ;
-//        for (int i = 1; i < p.ordering.size(); i++) {
-//            if(p.ordering.get(i).before.type == "INITIAL-STATE"){
-//                ord.add(p.ordering.get(i).before);
-//                ord.add(p.ordering.get(i).after);
-//            }
-//        }
-//    }
+
+    public void order(Plan p) {
+        ArrayList<Action> ord = null;
+        for (int i = 1; i < p.link.size(); i++) {
+            if (p.link.get(i).provider.type == "INITIAL-STATE") {
+                ord.add(p.link.get(i).provider);
+                ord.add(p.link.get(i).reciver);
+            }
+            for (int j = 0; j < ord.size(); j++) {
+                if (ord.get(j) == p.link.get(i).provider) {
+                    ord.add(p.link.get(i).reciver);
+                }
+            }
+        }
+    }
 }
