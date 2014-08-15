@@ -94,10 +94,6 @@ public class Pop {
 
                 for (int i = 0; i < internalSelect.size(); i++) {
 
-                    if (linkAndOrderTest() == false) {
-                        continue;
-                    }
-
                     if (notFoundAction) {
                         for (int j = 0; j < internalSelect.get(i).adds.size(); j++) {
                             if (internalSelect.get(i).adds.get(j).predicate.equalsIgnoreCase(subgoal.state.predicate)) {
@@ -107,7 +103,7 @@ public class Pop {
                                 ArrayList<Variable> arvar = new ArrayList<>();
 
                                 for (k = 0; k < subgoal.state.numberOfArg; k++) {
-                                    if (internalSelect.get(i).adds.get(j).arguments.get(k).value.equals(subgoal.state.arguments.get(k).value)) {
+                                    if (internalSelect.get(i).adds.get(j).arguments.get(k).value == (subgoal.state.arguments.get(k).value)) {
                                         temp++;
                                     } else if (subgoal.state.arguments.get(k).value == null) {
 
@@ -127,9 +123,11 @@ public class Pop {
                                         break;
                                     }
                                 }
-                                if ((temp == k && temp != 0) || subgoal.state.numberOfArg == 0) {
+                                if (((temp == k && temp != 0) || subgoal.state.numberOfArg == 0) && linkAndOrderTest(p, internalSelect.get(i), subgoal) ) {
 //                                Action ac = null;
+                                    
                                     ac = internalSelect.get(i);
+                                    
                                     if (arvar.size() > 0) {
                                         localbound = arvar;
                                         for (int t = 0; t < p.step.size(); t++) {
@@ -388,20 +386,45 @@ public class Pop {
     public boolean linkAndOrderTest(Plan p, Action ac, Subgoal subgoal) {
 
         boolean canDone = true;
-        for (int i = 0; i < p.link.size(); i++) {
-            if (p.link.get(i).reciver == ac) {
 
-                if (p.link.get(i).reciver == subgoal.action) {
-                    canDone = false; // in vase ye marhale
+        ArrayList<Action> forbiddenAction = new ArrayList<>();
+        ArrayList<Boolean> check = new ArrayList<>();
+        forbiddenAction.add(subgoal.action);
+        check.add(false);
+
+        while (check.contains(false)) {
+            int ind = check.indexOf(false);
+            check.set(ind, true);
+            Action a = forbiddenAction.get(ind);
+
+            for (int i = 0; i < p.link.size(); i++) {
+
+                if (p.link.get(i).provider == a) {
+
+                    forbiddenAction.add(p.link.get(i).reciver);
+                    check.add(true);
                 }
+
             }
 
         }
-        
-        
-        
-        
-        
+        check.set(0, false); // khode action dobare false mishe vase check kardane order ha
+        while (check.contains(false)) {
+            int ind = check.indexOf(false);
+            check.set(ind, true);
+            Action a = forbiddenAction.get(ind);
+
+            for (int i = 0; i < p.ordering.size(); i++) {
+
+                if (p.ordering.get(i).before == a) {
+
+                    forbiddenAction.add(p.ordering.get(i).after);
+                    check.add(true);
+                }
+
+            }
+        }
+        canDone = !forbiddenAction.contains(ac);
 
         return canDone;
     }
