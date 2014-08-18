@@ -70,15 +70,8 @@ public class Pop {
 //            get back up of p
             Plan backUpPlan = clone(p);
 
-            //2- select from subgoals (choice)
-            Subgoal subgoal;
-//            if (p.step.size() > 2) {
-//                subgoal = p.subgoal.get(p.subgoal.size() - 1);
-//                p.subgoal.remove(p.subgoal.size() - 1);
-//            } else {
-//            subgoal = p.subgoal.get(0);
-//            p.subgoal.remove(0);
-            subgoal = leastCommitmentStrategy(p.subgoal);
+     
+            Subgoal subgoal = leastCommitmentStrategy(p.subgoal);
 //            }
 
             System.out.println("    Subgoal : " + subgoal.state.predicate + " in action " + subgoal.action.type);
@@ -90,12 +83,14 @@ public class Pop {
 
             // internal choose action
             ArrayList<Action> internalSelect = internal(p);
+            ArrayList<Action> posibleActions;
+            int numOfNull;
             // opertators and steps unordering
             boolean internalFound = false;
             if (notFoundAction) {
 
                 for (int i = 0; i < internalSelect.size(); i++) {
-
+                    numOfNull = 0;
                     if (notFoundAction) {
                         for (int j = 0; j < internalSelect.get(i).adds.size(); j++) {
                             if (internalSelect.get(i).adds.get(j).predicate.equalsIgnoreCase(subgoal.state.predicate)) {
@@ -103,66 +98,72 @@ public class Pop {
                                 int temp = 0;
                                 int k;
                                 ArrayList<Variable> arvar = new ArrayList<>();
-                                ArrayList<Object> forbidValue = new ArrayList<>();
+                         //       ArrayList<Object> forbidValue = new ArrayList<>();
                                 for (k = 0; k < subgoal.state.numberOfArg; k++) {
-                                    if (internalSelect.get(i).adds.get(j).arguments.get(k).value == (subgoal.state.arguments.get(k).value)) {
+                                    if (internalSelect.get(i).adds.get(j).arguments.get(k).value == (subgoal.state.arguments.get(k).value) && subgoal.state.arguments.get(k).value != null) {
                                         temp++;
-                                    } else if (subgoal.state.arguments.get(k).value == null) {
+                                        
+                                    } else if (subgoal.state.arguments.get(k).value == null && internalSelect.get(i).adds.get(j).arguments.get(k).value != null) {
 
                                         Variable v = new Variable();
                                         v.name = subgoal.state.arguments.get(k).name;
                                         v.value = internalSelect.get(i).adds.get(j).arguments.get(k).value;
                                        
-                                        if(!forbidValue.contains(v.value)){
+                       //                 if(!forbidValue.contains(v.value)){
                                             arvar.add(v);
                                              temp++;
-                                             forbidValue.add(v.value);
-                                        }
+                       //                      forbidValue.add(v.value);
+                       //                 }
                                          
 
-                                    } else if (internalSelect.get(i).adds.get(j).arguments.get(k).value == null) {
+                                    } else if (internalSelect.get(i).adds.get(j).arguments.get(k).value == null && subgoal.state.arguments.get(k).value != null) {
                                         Variable v = new Variable();
                                         v.name = subgoal.state.arguments.get(k).name;
                                         v.value = subgoal.state.arguments.get(k).value;
-                                        if(!forbidValue.contains(v.value)){
+                    //                    if(!forbidValue.contains(v.value)){
                                             arvar.add(v);
                                             temp++;
-                                             forbidValue.add(v.value);
-                                        }
-                                    } else {
+                     //                        forbidValue.add(v.value);
+                     //                   }
+                                    }else if(internalSelect.get(i).adds.get(j).arguments.get(k).value == null && subgoal.state.arguments.get(k).value == null){
+                                        // inja bayad codi bezanam ke dorost bashe
+                                    }                              
+                                    else {
                                         break;
                                     }
                                 }
                                 boolean canDone = linkAndOrderTest(p, internalSelect.get(i), subgoal);
-                                if (((temp == k && temp != 0) || subgoal.state.numberOfArg == 0) && canDone) {
+                                if ((temp == k && temp != 0) || subgoal.state.numberOfArg == 0  && canDone) {
 //                                Action ac = null;
 
                                     ac = internalSelect.get(i);
 
                                     if (arvar.size() > 0) {
                                         localbound = arvar;
-                                        for (int t = 0; t < p.step.size(); t++) {
-                                            if (p.step.get(t).type.equals(subgoal.action.type)) {
-                                                int tt = 0;
-                                                int u;
-                                                for (u = 0; u < subgoal.action.preconditions.subgoals.size(); u++) {
-                                                    for (int y = 0; y < p.step.get(t).preconditions.subgoals.get(u).state.arguments.size(); y++) {
+//                                        for (int t = 0; t < p.step.size(); t++) {
+//                                            if (p.step.get(t).type.equals(subgoal.action.type)) {
+//                                                int tt = 0;
+//                                                int u;
+//                                                for (u = 0; u < subgoal.action.preconditions.subgoals.size(); u++) {
+//                                                    for (int y = 0; y < p.step.get(t).preconditions.subgoals.get(u).state.arguments.size(); y++) {
+//
+//                                                        if (p.step.get(t).preconditions.subgoals.get(u).state.arguments.get(y) == subgoal.action.preconditions.subgoals.get(u).state.arguments.get(y)) {
+//                                                            
+////                                                            shak daram #############################################################################################################################################################################################
+//                                                            tt++;
+//                                                        }
+//                                                    }
+//
+//                                                }
+//                                                if (tt == u) {
+////                                                    boundAction(p.step.get(t), localbound);
+//                                                }
+//
+//                                            }
+//
+//                                        }
 
-                                                        if (p.step.get(t).preconditions.subgoals.get(u).state.arguments.get(y) == subgoal.action.preconditions.subgoals.get(u).state.arguments.get(y)) {
-                                                            tt++;
-                                                        }
-                                                    }
-
-                                                }
-                                                if (tt == u) {
-                                                    boundAction(p.step.get(t), localbound);
-                                                }
-
-                                            }
-
-                                        }
-
-                                        boundAction(ac, localbound);
+                                        boundAction(p,ac, localbound);
                                     }
                                     System.out.println("add Internal Action: " + ac.type + " for state  " + subgoal.state.predicate + " - state args :" + (subgoal.state.arguments.size() > 0 ? subgoal.state.arguments.get(0).value : "") + " , " + (subgoal.state.arguments.size() > 1 ? subgoal.state.arguments.get(1).value : "") + " for : " + subgoal.state.predicate);
 
@@ -184,6 +185,10 @@ public class Pop {
 
                                     break;
                                 }
+//                                else if( subgoal.state.numberOfArg == 0 && canDone) {
+//                                
+//                                }
+                                
 
                             }
                         }
@@ -208,13 +213,13 @@ public class Pop {
                                 for (int k = 0; k < ac.adds.get(j).numberOfArg; k++) { // tedade argument ha
                                     Variable v = new Variable();
                                     v.value = subgoal.state.arguments.get(k).value;
-                                    v.name = subgoal.state.arguments.get(k).name;
+                                    v.name = ac.adds.get(j).arguments.get(k).name;
                                     arrvar.add(v);
                                     ac.arguments.get(k).value = v.value;
 
                                 }
 
-                                localbound.addAll(ac.arguments);
+                                localbound.addAll(arrvar);
                                 bounded.addAll(ac.arguments);
 
                                 notFoundAction = false;
@@ -224,7 +229,7 @@ public class Pop {
                     }
                 }
 
-                ac = boundAction(ac, localbound);
+                ac = boundAction(p,ac, localbound);
 
                 // action inja bound shoode ast 
                 Link link = new Link();
@@ -488,12 +493,12 @@ public class Pop {
 
     public Subgoal leastCommitmentStrategy(ArrayList<Subgoal> subgoals) {
 
-        int[] numberOfPredicates;
-        numberOfPredicates = new int[subgoals.size()];
+   //     int[] numberOfPredicates;
+    //    numberOfPredicates = new int[subgoals.size()];
         Subgoal s = subgoals.get(0);
         int index = 0;
         for (int i = 1; i < subgoals.size(); i++) {
-            if (subgoals.get(i).state.numberOfArg > subgoals.get(i - 1).state.numberOfArg) {
+            if (subgoals.get(i).state.numberOfArg < subgoals.get(i - 1).state.numberOfArg) {
                 s = subgoals.get(i);
                 index = i;
             }
@@ -502,7 +507,7 @@ public class Pop {
         return s;
     }
 
-    public Action boundAction(Action ac, ArrayList<Variable> localbound) {
+    public Action boundAction(Plan p, Action ac, ArrayList<Variable> localbound) {
         // meghdar dehi kardan be Ation
         for (int r = 0; r < ac.arguments.size(); r++) {
 
@@ -543,6 +548,30 @@ public class Pop {
                 }
             }
         }
+        
+        for(int i=0; i<p.link.size();i++)
+        {
+            if(p.link.get(i).provider == ac){
+                Action ac2 = p.link.get(i).reciver;
+                for(int j=0; j<ac2.preconditions.subgoals.size();j++){
+                    for(int k=0;k < ac2.preconditions.subgoals.get(j).state.numberOfArg; k++){
+                        for(int l=0 ; l<localbound.size();l++){
+                            if(ac2.preconditions.subgoals.get(j).state.arguments.get(k).equals(localbound.get(l))){
+                                boundAction(p, ac2, localbound);
+                            }
+                        }
+                        
+                        
+                    }
+                }
+            }
+            else{
+                continue;
+            }
+            
+        }
+        
+        
         return ac;
 
     }
@@ -860,6 +889,7 @@ public class Pop {
         for (int i = 0; i < p.step.size(); i++) {
             Random r = new Random();
             double d = r.nextDouble();
+            d = d*p.step.get(i).preconditions.subgoals.size();
             random.add(d);
             index.add(i);
             
@@ -903,6 +933,7 @@ public class Pop {
 
             Random r = new Random();
             double d = r.nextDouble();
+            d = d*this.operators.get(i).preconditions.subgoals.size();
             random.add(d);
 
         }
