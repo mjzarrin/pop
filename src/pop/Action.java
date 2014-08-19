@@ -32,19 +32,19 @@ public class Action {
 //            return null;
 //        }
 //    }
-    public Action(Action a){
-       
-        this.adds = a.adds;
-        this.arguments =  a.arguments;
-        this.deletes = a.deletes;
-        this.preconditions = a.preconditions;
-        this.type = a.type;
-    
-    }
-
-    Action() {
-        
-    }
+//    public Action(Action a){
+//       
+//        this.adds = a.adds;
+//        this.arguments =  a.arguments;
+//        this.deletes = a.deletes;
+//        this.preconditions = a.preconditions;
+//        this.type = a.type;
+//    
+//    }
+//
+//    Action() {
+//        
+//    }
 
 
     
