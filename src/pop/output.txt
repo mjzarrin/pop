@@ -1,1 +1,79 @@
-﻿salam
+POP START 
+ 
+ 
+
+Subgoal Selected : ON for actionGOALS
+Start Searching in internal actions.
+Subgoal Selected : HOLDING for actionSTACK
+Start Searching in internal actions.
+Subgoal Selected : ARM-EMPTY for actionUNSTACK
+Start Searching in internal actions.
+ Internal Action Selected : INITIAL-STATEArguments :
+ Link Added : 
+              link provider : INITIAL-STATE
+              link reciver  : UNSTACK
+              link condition: ARM-EMPTY
+Start Finding Thread for Internal Actions: 
+Subgoal Selected : CLEAR for actionUNSTACK
+Start Searching in internal actions.
+ Internal Action Selected : STACKArguments :
+ Link Added : 
+              link provider : STACK
+              link reciver  : UNSTACK
+              link condition: CLEAR
+Start Finding Thread for Internal Actions: 
+Subgoal Selected : CLEAR for actionSTACK
+Start Searching in internal actions.
+ Internal Action Selected : INITIAL-STATEArguments :
+ Link Added : 
+              link provider : INITIAL-STATE
+              link reciver  : STACK
+              link condition: CLEAR
+Start Finding Thread for Internal Actions: 
+Subgoal Selected : ON for actionGOALS
+Start Searching in internal actions.
+Subgoal Selected : HOLDING for actionSTACK
+Start Searching in internal actions.
+Subgoal Selected : ARM-EMPTY for actionUNSTACK
+Start Searching in internal actions.
+ Internal Action Selected : INITIAL-STATEArguments :
+ Link Added : 
+              link provider : INITIAL-STATE
+              link reciver  : UNSTACK
+              link condition: ARM-EMPTY
+Start Finding Thread for Internal Actions: 
+Subgoal Selected : CLEAR for actionUNSTACK
+Start Searching in internal actions.
+ Internal Action Selected : INITIAL-STATEArguments :
+ Link Added : 
+              link provider : INITIAL-STATE
+              link reciver  : UNSTACK
+              link condition: CLEAR
+Start Finding Thread for Internal Actions: 
+Subgoal Selected : CLEAR for actionSTACK
+Start Searching in internal actions.
+ Internal Action Selected : INITIAL-STATEArguments :
+ Link Added : 
+              link provider : INITIAL-STATE
+              link reciver  : STACK
+              link condition: CLEAR
+Start Finding Thread for Internal Actions: 
+Subgoal Selected : ON for actionUNSTACK
+Start Searching in internal actions.
+ Internal Action Selected : STACKArguments :
+bounding operation for action is start for 
+ Link Added : 
+              link provider : STACK
+              link reciver  : UNSTACK
+              link condition: ON
+Start Finding Thread for Internal Actions: 
+Subgoal Selected : ON for actionUNSTACK
+Start Searching in internal actions.
+ Internal Action Selected : STACKArguments :
+bounding operation for action is start for 
+ Link Added : 
+              link provider : STACK
+              link reciver  : UNSTACK
+              link condition: ON
+Start Finding Thread for Internal Actions: 
+Plan Finished

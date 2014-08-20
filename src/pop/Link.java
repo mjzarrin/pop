@@ -12,7 +12,7 @@ package pop;
  */
 public class Link {
     Action provider = new Action();
-    Action reciver = new Action();
+    Action receiver = new Action();
     State condition = new State();
     
     public Link(){
@@ -22,7 +22,7 @@ public class Link {
     public Link(Link l){
         this.condition = l.condition;
         this.provider = l.provider;
-        this.reciver = l.reciver;
+        this.receiver = l.receiver;
         
     }
     
