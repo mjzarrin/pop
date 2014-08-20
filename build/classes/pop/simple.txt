@@ -4,17 +4,20 @@ b
 c
 
 
-INITIAL-STATE:3
+INITIAL-STATE:4
 CLEAR
 a
 ARM-EMPTY
 ON
 a
 b
+ON-TABLE
+a
 
 
 GOALS:2
-ON-TABLE
+ON
+b
 a
-CLEAR
+clear
 a

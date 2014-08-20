@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
@@ -31,6 +32,9 @@ public class Pop {
     Action goal = new Action();
 //    Subgoal subgoal = new Subgoal();
     Plan plan;
+    
+    
+
 
     public static void main(String[] args) throws IOException {
         // read domain
@@ -39,6 +43,8 @@ public class Pop {
         popObject.domain();
         popObject.problem();
         Plan plan = popObject.makeinitialplan();
+        PrintWriter writer = new PrintWriter("output.txt", "UTF-8");
+        writer.println("POP START \n \n \n");
         System.out.println("POP Started");
         Plan lastPlan = popObject.pop(plan);
         // list of all predicators                                                                          Done
@@ -81,7 +87,11 @@ public class Pop {
 //            get back up of p
             Plan backUpPlan = clone(p);
 
-            Subgoal subgoal = leastCommitmentStrategy(p.subgoal);
+           Subgoal subgoal = leastCommitmentStrategy(p.subgoal);
+           p.threat = new ArrayList<Threat>();
+//            Subgoal subgoal = p.subgoal.get(0);
+//            p.subgoal.remove(0);
+            
 //            }
 
             System.out.println("    Subgoal : " + subgoal.state.predicate + " in action " + subgoal.action.type);
@@ -349,13 +359,27 @@ public class Pop {
         }
         return p;
     }
-
+    public boolean stateEquality(State st1, State st2){
+        if(st1.predicate.equalsIgnoreCase(st2.predicate) && st1.numberOfArg == st2.numberOfArg){
+            int eqcheck = 0; 
+            for(int i=0; i<st1.numberOfArg;i++){
+                 if(st1.arguments.get(i).value == st1.arguments.get(i).value ){
+                     eqcheck ++;
+                 }
+             }
+            if(eqcheck == st1.numberOfArg){
+                return true;
+            }
+        }
+        
+        return false;
+    }
     public void findThread(Plan p, Plan backUpPlan, Action ac, Link link, boolean internalfound) {
         if (internalfound) {
 
             for (int i = 0; i < p.step.size(); i++) {
                 for (int j = 0; j < p.step.get(i).deletes.size(); j++) {
-                    if (p.step.get(i).deletes.get(j) == link.condition) {
+                    if (stateEquality(p.step.get(i).deletes.get(j), link.condition)) {
                         Threat thread = new Threat();
                         thread.link = link;
                         thread.action = ac;
@@ -378,7 +402,7 @@ public class Pop {
                         int temp = 0;
                         int k = 0;
                         for (; k < ac.deletes.get(i).numberOfArg; k++) {
-                            if (ac.deletes.get(i).arguments.get(k).value == p.link.get(j).condition.arguments.get(k).value) {
+                            if (ac.deletes.get(i).arguments.get(k).value.equals(p.link.get(j).condition.arguments.get(k).value)) {
                                 temp++;
                             }
                         }
@@ -425,6 +449,7 @@ public class Pop {
             if (p.threat.get(i).link.reciver == goal) {
                 o.before = p.threat.get(i).action;
                 o.after = p.threat.get(i).link.provider;
+                
             } else if (p.threat.get(i).link.provider == init) {
                 o.before = p.threat.get(i).link.reciver;
                 o.after = p.threat.get(i).action;
@@ -441,6 +466,7 @@ public class Pop {
                     o.after = p.threat.get(i).action;
                 }
             }
+            
             p.ordering.add(o);
         }
     }
@@ -990,7 +1016,7 @@ public class Pop {
 
     public void problem() throws FileNotFoundException, IOException {
 
-        try (BufferedReader problem = new BufferedReader(new FileReader("src/pop/simple.txt"))) {
+        try (BufferedReader problem = new BufferedReader(new FileReader("src/pop/sussman-anomaly.txt"))) {
             StringBuilder sb = new StringBuilder();
             String line = problem.readLine();
 
