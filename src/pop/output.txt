@@ -2,78 +2,88 @@ POP START
  
  
 
-Subgoal Selected : ON for actionGOALS
+Subgoal Selected : ON-TABLE for action GOALS
 Start Searching in internal actions.
-Subgoal Selected : HOLDING for actionSTACK
+Start Searching an operators Satisfies the subgoal.
+operators selected and goes for bounding. the operator is: PUT-DOWN
+bounding operation for action is start for ob: a 
+ Link Added : 
+              link provider : PUT-DOWN
+              link receiver  : GOALS
+              link condition: ON-TABLE
+new Subgoals added as bellow: 
+HOLDING for action PUT-DOWN 
+find thread for new action : PUT-DOWN
+external action found and this actions must check to not delete any conditions of all links in plan. our action is :PUT-DOWN Arguments   ob: a  
+Subgoal Selected : CLEAR for action GOALS
 Start Searching in internal actions.
-Subgoal Selected : ARM-EMPTY for actionUNSTACK
+Start Searching an operators Satisfies the subgoal.
+operators selected and goes for bounding. the operator is: UNSTACK
+bounding operation for action is start for sunderob: b 
+ Link Added : 
+              link provider : UNSTACK
+              link receiver  : GOALS
+              link condition: CLEAR
+new Subgoals added as bellow: 
+ON for action UNSTACK CLEAR for action UNSTACK ARM-EMPTY for action UNSTACK 
+find thread for new action : UNSTACK
+external action found and this actions must check to not delete any conditions of all links in plan. our action is :UNSTACK Arguments   sob: b    sunderob: b  
+Subgoal Selected : ARM-EMPTY for action UNSTACK
 Start Searching in internal actions.
- Internal Action Selected : INITIAL-STATEArguments :
+ Internal Action Selected : INITIAL-STATE Arguments :
  Link Added : 
               link provider : INITIAL-STATE
-              link reciver  : UNSTACK
+              link receiver  : UNSTACK
               link condition: ARM-EMPTY
 Start Finding Thread for Internal Actions: 
-Subgoal Selected : CLEAR for actionUNSTACK
+Internal Action found and must find actions that is thread for link between INITIAL-STATE to UNSTACK for state ARM-EMPTY
+ Thread find :
+Thread Link :INITIAL-STATE to UNSTACK
+thread action is :INITIAL-STATE
+thread condition : ARM-EMPTY
+Ignore all conditions on this link and action 
+Subgoal Selected : CLEAR for action UNSTACK
 Start Searching in internal actions.
- Internal Action Selected : STACKArguments :
- Link Added : 
-              link provider : STACK
-              link reciver  : UNSTACK
-              link condition: CLEAR
-Start Finding Thread for Internal Actions: 
-Subgoal Selected : CLEAR for actionSTACK
-Start Searching in internal actions.
- Internal Action Selected : INITIAL-STATEArguments :
- Link Added : 
-              link provider : INITIAL-STATE
-              link reciver  : STACK
-              link condition: CLEAR
-Start Finding Thread for Internal Actions: 
-Subgoal Selected : ON for actionGOALS
-Start Searching in internal actions.
-Subgoal Selected : HOLDING for actionSTACK
-Start Searching in internal actions.
-Subgoal Selected : ARM-EMPTY for actionUNSTACK
-Start Searching in internal actions.
- Internal Action Selected : INITIAL-STATEArguments :
+ Internal Action Selected : INITIAL-STATE Arguments :
+bounding operation for action is start for sob: a 
  Link Added : 
               link provider : INITIAL-STATE
-              link reciver  : UNSTACK
-              link condition: ARM-EMPTY
-Start Finding Thread for Internal Actions: 
-Subgoal Selected : CLEAR for actionUNSTACK
-Start Searching in internal actions.
- Internal Action Selected : INITIAL-STATEArguments :
- Link Added : 
-              link provider : INITIAL-STATE
-              link reciver  : UNSTACK
+              link receiver  : UNSTACK
               link condition: CLEAR
 Start Finding Thread for Internal Actions: 
-Subgoal Selected : CLEAR for actionSTACK
+Internal Action found and must find actions that is thread for link between INITIAL-STATE to UNSTACK for state CLEAR
+ Thread find :
+Thread Link :INITIAL-STATE to UNSTACK
+thread action is :INITIAL-STATE
+thread condition : CLEAR
+Ignore all conditions on this link and action 
+Subgoal Selected : HOLDING for action PUT-DOWN
 Start Searching in internal actions.
- Internal Action Selected : INITIAL-STATEArguments :
+ Internal Action Selected : UNSTACK Arguments :  sob: b    sunderob: b  
+bounding operation for action is start for sob: a 
+ Link Added : 
+              link provider : UNSTACK
+              link receiver  : PUT-DOWN
+              link condition: HOLDING
+Start Finding Thread for Internal Actions: 
+Internal Action found and must find actions that is thread for link between UNSTACK to PUT-DOWN for state HOLDING
+ Thread find :
+Thread Link :UNSTACK to PUT-DOWN
+thread action is :UNSTACK
+thread condition : HOLDING
+Ignore all conditions on this link and action 
+Subgoal Selected : ON for action UNSTACK
+Start Searching in internal actions.
+ Internal Action Selected : INITIAL-STATE Arguments :
  Link Added : 
               link provider : INITIAL-STATE
-              link reciver  : STACK
-              link condition: CLEAR
-Start Finding Thread for Internal Actions: 
-Subgoal Selected : ON for actionUNSTACK
-Start Searching in internal actions.
- Internal Action Selected : STACKArguments :
-bounding operation for action is start for 
- Link Added : 
-              link provider : STACK
-              link reciver  : UNSTACK
+              link receiver  : UNSTACK
               link condition: ON
 Start Finding Thread for Internal Actions: 
-Subgoal Selected : ON for actionUNSTACK
-Start Searching in internal actions.
- Internal Action Selected : STACKArguments :
-bounding operation for action is start for 
- Link Added : 
-              link provider : STACK
-              link reciver  : UNSTACK
-              link condition: ON
-Start Finding Thread for Internal Actions: 
+Internal Action found and must find actions that is thread for link between INITIAL-STATE to UNSTACK for state ON
+ Thread find :
+Thread Link :INITIAL-STATE to UNSTACK
+thread action is :INITIAL-STATE
+thread condition : ON
+Ignore all conditions on this link and action 
 Plan Finished
