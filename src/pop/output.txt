@@ -15,19 +15,87 @@ new Subgoals added as bellow:
 HOLDING for action PUT-DOWN 
 find thread for new action : PUT-DOWN
 external action found and this actions must check to not delete any conditions of all links in plan. our action is :PUT-DOWN Arguments   ob: a  
+Thread Resolver Starts and new order created as bellow : 
 Subgoal Selected : CLEAR for action GOALS
 Start Searching in internal actions.
 Start Searching an operators Satisfies the subgoal.
-operators selected and goes for bounding. the operator is: UNSTACK
-bounding operation for action is start for sunderob: b 
+operators selected and goes for bounding. the operator is: STACK
+bounding operation for action is start for sob: b 
  Link Added : 
-              link provider : UNSTACK
+              link provider : STACK
               link receiver  : GOALS
               link condition: CLEAR
 new Subgoals added as bellow: 
+HOLDING for action STACK CLEAR for action STACK 
+find thread for new action : STACK
+external action found and this actions must check to not delete any conditions of all links in plan. our action is :STACK Arguments   sob: b    sunderob: null  
+Thread Resolver Starts and new order created as bellow : 
+Subgoal Selected : HOLDING for action PUT-DOWN
+Start Searching in internal actions.
+Start Searching an operators Satisfies the subgoal.
+operators selected and goes for bounding. the operator is: PICK-UP
+bounding operation for action is start for ob1: a 
+ Link Added : 
+              link provider : PICK-UP
+              link receiver  : PUT-DOWN
+              link condition: HOLDING
+new Subgoals added as bellow: 
+CLEAR for action PICK-UP ON-TABLE for action PICK-UP ARM-EMPTY for action PICK-UP 
+find thread for new action : PICK-UP
+external action found and this actions must check to not delete any conditions of all links in plan. our action is :PICK-UP Arguments   ob1: a  
+ Thread find :
+Thread Link :PUT-DOWN to GOALS
+thread action is :PICK-UP
+thread condition : ON-TABLE
+mikham bebinam chiye  : ON-TABLE
+Ignore all conditions on this link and action 
+Constrain added.
+Thread Resolver Starts and new order created as bellow : 
+ action PICK-UP comes before action PUT-DOWN
+Subgoal Selected : ARM-EMPTY for action PICK-UP
+Start Searching in internal actions.
+ Internal Action Selected : INITIAL-STATE Arguments :
+ Link Added : 
+              link provider : INITIAL-STATE
+              link receiver  : PICK-UP
+              link condition: ARM-EMPTY
+Start Finding Thread for Internal Actions: 
+Internal Action found and must find actions that is thread for link between INITIAL-STATE to PICK-UP for state ARM-EMPTY
+ Thread find :
+Thread Link :INITIAL-STATE to PICK-UP
+thread action is :INITIAL-STATE
+thread condition : ARM-EMPTY
+Ignore all conditions on this link and action 
+Thread Resolver Starts and new order created as bellow : 
+ action PICK-UP comes before action INITIAL-STATE
+Subgoal Selected : HOLDING for action STACK
+Start Searching in internal actions.
+Start Searching an operators Satisfies the subgoal.
+operators selected and goes for bounding. the operator is: UNSTACK
+bounding operation for action is start for sob: b 
+ Link Added : 
+              link provider : UNSTACK
+              link receiver  : STACK
+              link condition: HOLDING
+new Subgoals added as bellow: 
 ON for action UNSTACK CLEAR for action UNSTACK ARM-EMPTY for action UNSTACK 
 find thread for new action : UNSTACK
-external action found and this actions must check to not delete any conditions of all links in plan. our action is :UNSTACK Arguments   sob: b    sunderob: b  
+external action found and this actions must check to not delete any conditions of all links in plan. our action is :UNSTACK Arguments   sob: b    sunderob: null  
+ Thread find :
+Thread Link :STACK to GOALS
+thread action is :UNSTACK
+thread condition : CLEAR
+mikham bebinam chiye  : CLEAR
+Ignore all conditions on this link and action 
+ Thread find :
+Thread Link :INITIAL-STATE to PICK-UP
+thread action is :UNSTACK
+thread condition : ARM-EMPTY
+mikham bebinam chiye  : ARM-EMPTY
+Ignore all conditions on this link and action 
+Thread Resolver Starts and new order created as bellow : 
+ action UNSTACK comes before action STACK
+ action PICK-UP comes before action UNSTACK
 Subgoal Selected : ARM-EMPTY for action UNSTACK
 Start Searching in internal actions.
  Internal Action Selected : INITIAL-STATE Arguments :
@@ -42,48 +110,131 @@ Thread Link :INITIAL-STATE to UNSTACK
 thread action is :INITIAL-STATE
 thread condition : ARM-EMPTY
 Ignore all conditions on this link and action 
+ Thread find :
+Thread Link :INITIAL-STATE to UNSTACK
+thread action is :INITIAL-STATE
+thread condition : ARM-EMPTY
+Ignore all conditions on this link and action 
+Thread Resolver Starts and new order created as bellow : 
+ action UNSTACK comes before action INITIAL-STATE
+ action UNSTACK comes before action INITIAL-STATE
 Subgoal Selected : CLEAR for action UNSTACK
 Start Searching in internal actions.
- Internal Action Selected : INITIAL-STATE Arguments :
-bounding operation for action is start for sob: a 
+ Internal Action Selected : UNSTACK Arguments :  sob: b    sunderob: null  
+bounding operation for action is start for sunderob: b 
  Link Added : 
-              link provider : INITIAL-STATE
+              link provider : UNSTACK
               link receiver  : UNSTACK
               link condition: CLEAR
 Start Finding Thread for Internal Actions: 
-Internal Action found and must find actions that is thread for link between INITIAL-STATE to UNSTACK for state CLEAR
+Internal Action found and must find actions that is thread for link between UNSTACK to UNSTACK for state CLEAR
  Thread find :
-Thread Link :INITIAL-STATE to UNSTACK
+Thread Link :UNSTACK to UNSTACK
+thread action is :UNSTACK
+thread condition : CLEAR
+Ignore all conditions on this link and action 
+ Thread find :
+Thread Link :UNSTACK to UNSTACK
+thread action is :UNSTACK
+thread condition : CLEAR
+Ignore all conditions on this link and action 
+ Thread find :
+Thread Link :UNSTACK to UNSTACK
+thread action is :UNSTACK
+thread condition : CLEAR
+Ignore all conditions on this link and action 
+Thread Resolver Starts and new order created as bellow : 
+ action UNSTACK comes before action UNSTACK
+ action UNSTACK comes before action UNSTACK
+ action UNSTACK comes before action UNSTACK
+Subgoal Selected : CLEAR for action STACK
+Start Searching in internal actions.
+ Internal Action Selected : INITIAL-STATE Arguments :
+bounding operation for action is start for sunderob: a 
+ Link Added : 
+              link provider : INITIAL-STATE
+              link receiver  : STACK
+              link condition: CLEAR
+Start Finding Thread for Internal Actions: 
+Internal Action found and must find actions that is thread for link between INITIAL-STATE to STACK for state CLEAR
+ Thread find :
+Thread Link :INITIAL-STATE to STACK
 thread action is :INITIAL-STATE
 thread condition : CLEAR
 Ignore all conditions on this link and action 
-Subgoal Selected : HOLDING for action PUT-DOWN
-Start Searching in internal actions.
- Internal Action Selected : UNSTACK Arguments :  sob: b    sunderob: b  
-bounding operation for action is start for sob: a 
- Link Added : 
-              link provider : UNSTACK
-              link receiver  : PUT-DOWN
-              link condition: HOLDING
-Start Finding Thread for Internal Actions: 
-Internal Action found and must find actions that is thread for link between UNSTACK to PUT-DOWN for state HOLDING
  Thread find :
-Thread Link :UNSTACK to PUT-DOWN
-thread action is :UNSTACK
-thread condition : HOLDING
+Thread Link :INITIAL-STATE to STACK
+thread action is :INITIAL-STATE
+thread condition : CLEAR
 Ignore all conditions on this link and action 
-Subgoal Selected : ON for action UNSTACK
+ Thread find :
+Thread Link :INITIAL-STATE to STACK
+thread action is :INITIAL-STATE
+thread condition : CLEAR
+Ignore all conditions on this link and action 
+Thread Resolver Starts and new order created as bellow : 
+ action STACK comes before action INITIAL-STATE
+ action STACK comes before action INITIAL-STATE
+ action STACK comes before action INITIAL-STATE
+Subgoal Selected : CLEAR for action PICK-UP
 Start Searching in internal actions.
  Internal Action Selected : INITIAL-STATE Arguments :
  Link Added : 
               link provider : INITIAL-STATE
+              link receiver  : PICK-UP
+              link condition: CLEAR
+Start Finding Thread for Internal Actions: 
+Internal Action found and must find actions that is thread for link between INITIAL-STATE to PICK-UP for state CLEAR
+ Thread find :
+Thread Link :INITIAL-STATE to PICK-UP
+thread action is :INITIAL-STATE
+thread condition : CLEAR
+Ignore all conditions on this link and action 
+ Thread find :
+Thread Link :INITIAL-STATE to PICK-UP
+thread action is :INITIAL-STATE
+thread condition : CLEAR
+Ignore all conditions on this link and action 
+ Thread find :
+Thread Link :INITIAL-STATE to PICK-UP
+thread action is :INITIAL-STATE
+thread condition : CLEAR
+Ignore all conditions on this link and action 
+Thread Resolver Starts and new order created as bellow : 
+ action PICK-UP comes before action INITIAL-STATE
+ action PICK-UP comes before action INITIAL-STATE
+ action PICK-UP comes before action INITIAL-STATE
+Subgoal Selected : ON-TABLE for action PICK-UP
+Start Searching in internal actions.
+ Internal Action Selected : PUT-DOWN Arguments :  ob: a  
+ Link Added : 
+              link provider : PUT-DOWN
+              link receiver  : PICK-UP
+              link condition: ON-TABLE
+Start Finding Thread for Internal Actions: 
+Internal Action found and must find actions that is thread for link between PUT-DOWN to PICK-UP for state ON-TABLE
+ Thread find :
+Thread Link :PUT-DOWN to PICK-UP
+thread action is :PUT-DOWN
+thread condition : ON-TABLE
+Ignore all conditions on this link and action 
+Thread Resolver Starts and new order created as bellow : 
+ action PICK-UP comes before action PUT-DOWN
+Subgoal Selected : ON for action UNSTACK
+Start Searching in internal actions.
+ Internal Action Selected : STACK Arguments :  sob: b    sunderob: null  
+bounding operation for action is start for sunderob: b 
+ Link Added : 
+              link provider : STACK
               link receiver  : UNSTACK
               link condition: ON
 Start Finding Thread for Internal Actions: 
-Internal Action found and must find actions that is thread for link between INITIAL-STATE to UNSTACK for state ON
+Internal Action found and must find actions that is thread for link between STACK to UNSTACK for state ON
  Thread find :
-Thread Link :INITIAL-STATE to UNSTACK
-thread action is :INITIAL-STATE
+Thread Link :STACK to UNSTACK
+thread action is :STACK
 thread condition : ON
 Ignore all conditions on this link and action 
+Thread Resolver Starts and new order created as bellow : 
+ action STACK comes before action STACK
 Plan Finished

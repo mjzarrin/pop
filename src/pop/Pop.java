@@ -32,6 +32,7 @@ public class Pop {
     Action goal = new Action();
 //    Subgoal subgoal = new Subgoal();
     Plan plan;
+    boolean withConstrain = false;
     ArrayList<ConstraintThread> consthread = new ArrayList<>();
     public static PrintWriter writer;
 
@@ -116,6 +117,7 @@ public class Pop {
             boolean internalFound = false;
 
             writeToFile("Start Searching in internal actions.");
+//            Internal
             if (notFoundAction) {
 
                 for (int i = 0; i < internalSelect.size(); i++) {
@@ -176,7 +178,7 @@ public class Pop {
                                         break;
                                     }
                                 }
-                                boolean canDone = linkAndOrderTest(p, internalSelect.get(i), subgoal);
+                                boolean canDone = linkAndOrderTest(p, internalSelect.get(i), subgoal); // check loop condition in plan
                                 if ((temp == k && temp != 0) || subgoal.state.numberOfArg == 0 && canDone) {
 //                                Action ac = null;
 
@@ -233,7 +235,7 @@ public class Pop {
             //  reorderOperators choose
 
             reorderOperators();
-            //
+            //External
             if (notFoundAction) {
                 writeToFile("Start Searching an operators Satisfies the subgoal.");
                 for (int i = 0; i < operators.size(); i++) {
@@ -282,18 +284,6 @@ public class Pop {
                 writeToFile("              " + "link receiver  : " + link.receiver.type);
                 writeToFile("              " + "link condition: " + link.condition.predicate);
 
-//                Ordering order = new Ordering();
-//                order.before = ac;
-//                order.after = subgoal.action;
-//                p.ordering.add(order);
-//                for(int i=0; i<ac.preconditions.subgoals.size();i++){
-//                    for(int j=0; j<ac.preconditions.subgoals.get(j).state.numberOfArg;j++){
-//                        if(ac.preconditions.subgoals.get(j).state.arguments.get(j).value != null){
-//                            p.subgoal.add(ac.preconditions.subgoals.get(i).state);
-//                        }
-//               
-//                    }
-//                }
                 p.subgoal.addAll(ac.preconditions.subgoals); // age subgoali bashe ke bound nabashe chi mishe?????
 //                        p.subgoal
                 writeToFile("new Subgoals added as bellow: ");
@@ -303,69 +293,8 @@ public class Pop {
                 notFoundAction = false;
                 writeToFile("find thread for new action : " + ac.type);
                 findThread(p, backUpPlan, ac, link, internalFound);
-
-//                          Action ac = subgoal.action;
-                // be ezaye har chi moteghayere x hast meghdaresho az zir dar miarim
-                // moteghayer felan 2 jast add va precondition 2 ta for lazem darim
-                // subgoale state argument variable 
             }
-// find threads 
-
-//            if (internalFound == false) {
-//                for (int i = 0;
-//                        i < ac.deletes.size();
-//                        i++) {
-//                    for (int j = 0; j < backUpPlan.link.size(); j++) {
-//
-//                        for (int k = 0; k < backUpPlan.link.get(j).receiver.preconditions.subgoals.size(); k++) {
-//                            if (backUpPlan.link.get(j).receiver.preconditions.subgoals.get(k).state.predicate.equalsIgnoreCase(ac.deletes.get(i).predicate)) {
-//                                for (int l = 0; l < ac.deletes.get(i).numberOfArg; l++) {
-//                                    if (ac.deletes.get(i).arguments.get(l).value == backUpPlan.link.get(j).receiver.preconditions.subgoals.get(k).state.arguments.get(l).value) {
-//                                        Threat thread = new Threat();
-//
-//                                        thread.link = backUpPlan.link.get(j);
-//                                        thread.action = ac;
-//                                        thread.state = ac.deletes.get(i);
-//                                        System.out.println("        Thread found : in link between " + thread.link.provider.type + " to " + thread.link.receiver.type + "for state " + thread.state.predicate + " in action " + thread.action.type);
-//                                        p.threat.add(thread);
-//                                        break;
-//                                    }
-//                                }
-//                            }
-//                        }
-//
-//                    }
-//
-//                }
-//
-//                // resolve threads 
-//                for (int i = 0;
-//                        i < p.threat.size();
-//                        i++) {
-//                    Ordering o = new Ordering();
-//                    if (p.threat.get(i).link.receiver == goal) {
-//                        o.before = p.threat.get(i).action;
-//                        o.after = p.threat.get(i).link.provider;
-//                    } else if (p.threat.get(i).link.provider == init) {
-//                        o.before = p.threat.get(i).link.receiver;
-//                        o.after = p.threat.get(i).action;
-//                    } else {  // inja bayad ezafe kard taghire constarin
-//                        Random i = new Random();
-//                        double rand = i.nextDouble();
-//                        rand = 0.25;
-//                        if (rand < 0.5) {
-//                            o.before = p.threat.get(i).action;
-//                            o.after = p.threat.get(i).link.provider;
-//
-//                        } else {
-//                            o.before = p.threat.get(i).link.receiver;
-//                            o.after = p.threat.get(i).action;
-//                        }
-//                    }
-//                    p.ordering.add(o);
-//                }
-//            }
-            //6- recall popObject
+            resolvThread(p);
             pop(p);
         }
         return p;
@@ -442,12 +371,18 @@ public class Pop {
 //                                inja ye flag set mikonam ke age in halata etefagh oftad dakheleresolver kari kone ke constarinesh taghir peyda kone.
                                 v = p.link.get(j).condition.arguments.get(k);
                                 indexOfVariable = ac.arguments.indexOf(v);
+                                writeToFile("Constrain added.");
+                                
+                                
+                                
 //                                ac.arguments.get(i).constraints.add(v);
                             } else if (ac.deletes.get(i).arguments.get(k).value != null || p.link.get(j).condition.arguments.get(k).value == null) {
                                 temp = temp++;
 //                                inja ye flag set mikonam ke age in halata etefagh oftad dakheleresolver kari kone ke constarinesh taghir peyda kone.
-                                v = ac.deletes.get(i).arguments.get(k);
-                                indexOfVariable = ac.arguments.indexOf(v);
+//                                v = ac.deletes.get(i).arguments.get(k);
+//                                indexOfVariable = ac.arguments.indexOf(v);
+                                // in constrain male p.link.get(j) mishe **************************************************************8 ino hanoz nemitonam manage konam
+                                
 //                                ac.arguments.get(i).constraints.add(v);
                             } else if (ac.deletes.get(i).arguments.get(k).value == null || p.link.get(j).condition.arguments.get(k).value == null) {
                                 // 2 tash null hast ya moteghayer haye mnokhalef mizarim ya jabe jaee ke dovomi ason tare.
@@ -465,6 +400,7 @@ public class Pop {
                                 ct.thread = thread;
                                 ct.variable = v;
                                 this.consthread.add(ct);
+                                p.threat.remove(thread);
                             }
                         }
                         if (k == temp && temp != 0 || ac.deletes.get(i).numberOfArg == 0) {
@@ -509,33 +445,36 @@ public class Pop {
     public void resolvThread(Plan p) throws IOException {
         // resolve threads 
         writeToFile("Thread Resolver Starts and new order created as bellow : ");
-        for (int i = 0; i < p.threat.size(); i++) {
+      
+        for (Threat thread : p.threat) {
             Ordering o = new Ordering();
-            if (p.threat.get(i).link.receiver == goal) {
-                o.before = p.threat.get(i).action;
-                o.after = p.threat.get(i).link.provider;
+            if (thread.link.receiver == goal) {
+                o.before = thread.action;
+                o.after = thread.link.provider;
 
-            } else if (p.threat.get(i).link.provider == init) {
-                o.before = p.threat.get(i).link.receiver;
-                o.after = p.threat.get(i).action;
+            } else if (thread.link.provider == init) {
+                o.before = thread.link.receiver;
+                o.after = thread.action;
             } else {  // inja bayad ezafe kard taghire constarin
                 Random r = new Random();
                 double rand = r.nextDouble();
 //                rand = 0.25;
                 if (rand < 0.5) {
-                    o.before = p.threat.get(i).action;
-                    o.after = p.threat.get(i).link.provider;
+                    o.before = thread.action;
+                    o.after = thread.link.provider;
 
                 } else {
-                    o.before = p.threat.get(i).link.receiver;
-                    o.after = p.threat.get(i).action;
+                    o.before = thread.link.receiver;
+                    o.after = thread.action;
                 }
             }
 
             writeToFile(" action " + o.before.type + " comes before action " + o.after.type);
 
             p.ordering.add(o);
+      
         }
+        
 
     }
 
@@ -1238,20 +1177,6 @@ public class Pop {
         }
     }
 
-//    public void order(Plan p) {
-//        ArrayList<Action> ord = null;
-//        for (int i = 1; i < p.link.size(); i++) {
-//            if (p.link.get(i).provider.type == "INITIAL-STATE") {
-//                ord.add(p.link.get(i).provider);
-//                ord.add(p.link.get(i).receiver);
-//            }
-//            for (int j = 0; j < ord.size(); j++) {
-//                if (ord.get(j) == p.link.get(i).provider) {
-//                    ord.add(p.link.get(i).receiver);
-//                }
-//            }
-//        }
-//    }
     public String localboundArgumentToString(ArrayList<Variable> localbound) {
         String s = "";
         for (int i = 0; i < localbound.size(); i++) {

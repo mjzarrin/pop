@@ -12,12 +12,11 @@ ON
 a
 b
 ON-TABLE
-a
+b
 
 
 GOALS:2
-ON
+ON-TABLE
+a
+CLEAR
 b
-a
-clear
-a
