@@ -1,0 +1,12 @@
+STEPS :
+INITIAL-STATE() -> PUT-DOWN((ob: a)  ) -> UNSTACK((sob: a,sunderob: b)  ) -> GOALS()
+
+Links :
+            PUT-DOWN((ob: a)  ) -> GOALS(()  )
+            UNSTACK((sob: a,sunderob: b)  ) -> GOALS(()  )
+            INITIAL-STATE(()  ) -> UNSTACK((sob: a,sunderob: b)  )
+            INITIAL-STATE(()  ) -> UNSTACK((sob: a,sunderob: b)  )
+            UNSTACK((sob: a,sunderob: b)  ) -> PUT-DOWN((ob: a)  )
+            INITIAL-STATE(()  ) -> UNSTACK((sob: a,sunderob: b)  )
+ORDERING :
+            INITIAL-STATE(()  ) -> GOALS(()  )

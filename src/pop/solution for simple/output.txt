@@ -1,0 +1,116 @@
+POP START 
+ 
+ 
+
+
+
+
+Subgoal Selected : ON-TABLE(on-table-1: a)   for action GOALS()  
+Start Searching in internal actions.
+Internal Action not found or selected.
+Start Searching an operators Satisfies the subgoal.
+operators selected and goes for bounding. the operator is: PUT-DOWN(ob: null)  
+bounding operation for PUT-DOWN(ob: null)   And GOALS()   is start for ob: a 
+ Link Added : 
+              link provider : PUT-DOWN(ob: a)  
+              link receiver  : GOALS()  
+              link condition: ON-TABLE(on-table-1: a)  
+1new Subgoals added as bellow: 
+HOLDING(ob: a)  
+
+find thread for new action : PUT-DOWN(ob: a)  
+Thread finding Starts ....
+external action used and this actions must check to not delete any conditions of all links in plan. our action is :PUT-DOWN(ob: a)  
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+
+
+
+Subgoal Selected : CLEAR(clear-1: b)   for action GOALS()  
+Start Searching in internal actions.
+Internal Action not found or selected.
+Start Searching an operators Satisfies the subgoal.
+operators selected and goes for bounding. the operator is: UNSTACK(sob: null,sunderob: null)  
+bounding operation for UNSTACK(sob: null,sunderob: null)   And GOALS()   is start for sunderob: b 
+ Link Added : 
+              link provider : UNSTACK(sob: null,sunderob: b)  
+              link receiver  : GOALS()  
+              link condition: CLEAR(clear-1: b)  
+3new Subgoals added as bellow: 
+ON(sob: nullsunderob: b)  
+CLEAR(sob: null)  
+ARM-EMPTY()  
+
+find thread for new action : UNSTACK(sob: null,sunderob: b)  
+Thread finding Starts ....
+external action used and this actions must check to not delete any conditions of all links in plan. our action is :UNSTACK(sob: null,sunderob: b)  
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+
+
+
+Subgoal Selected : ARM-EMPTY()   for action UNSTACK(sob: null,sunderob: b)  
+Start Searching in internal actions.
+ Internal Action Selected : INITIAL-STATE()  
+ Link Added : 
+              link provider : INITIAL-STATE()  
+              link receiver  : UNSTACK(sob: null,sunderob: b)  
+              link condition: ARM-EMPTY()  
+Start Finding Thread for Internal Actions: 
+Thread finding Starts ....
+Internal Action used and must find actions that is thread for link between INITIAL-STATE to UNSTACK for state ARM-EMPTY
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+
+
+
+Subgoal Selected : CLEAR(sob: null)   for action UNSTACK(sob: null,sunderob: b)  
+Start Searching in internal actions.
+ Internal Action Selected : INITIAL-STATE()  
+bounding operation for INITIAL-STATE()   And UNSTACK(sob: a,sunderob: b)   is start for sob: a 
+ Link Added : 
+              link provider : INITIAL-STATE()  
+              link receiver  : UNSTACK(sob: a,sunderob: b)  
+              link condition: CLEAR(sob: a)  
+Start Finding Thread for Internal Actions: 
+Thread finding Starts ....
+Internal Action used and must find actions that is thread for link between INITIAL-STATE to UNSTACK for state CLEAR
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+
+
+
+Subgoal Selected : HOLDING(ob: a)   for action PUT-DOWN(ob: a)  
+Start Searching in internal actions.
+ Internal Action Selected : UNSTACK(sob: a,sunderob: b)  
+ Link Added : 
+              link provider : UNSTACK(sob: a,sunderob: b)  
+              link receiver  : PUT-DOWN(ob: a)  
+              link condition: HOLDING(ob: a)  
+Start Finding Thread for Internal Actions: 
+Thread finding Starts ....
+Internal Action used and must find actions that is thread for link between UNSTACK to PUT-DOWN for state HOLDING
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+
+
+
+Subgoal Selected : ON(sob: asunderob: b)   for action UNSTACK(sob: a,sunderob: b)  
+Start Searching in internal actions.
+ Internal Action Selected : INITIAL-STATE()  
+ Link Added : 
+              link provider : INITIAL-STATE()  
+              link receiver  : UNSTACK(sob: a,sunderob: b)  
+              link condition: ON(sob: asunderob: b)  
+Start Finding Thread for Internal Actions: 
+Thread finding Starts ....
+Internal Action used and must find actions that is thread for link between INITIAL-STATE to UNSTACK for state ON
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+Plan Finished
