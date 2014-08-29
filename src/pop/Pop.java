@@ -101,7 +101,7 @@ public class Pop {
             Random r = new Random();
             double d = r.nextDouble();
             double m = Math.pow(0.96, numOfTry);
-            if (notFoundAction && CYCLECHECK && d > m) {
+            if (notFoundAction && CYCLECHECK && d > 0.5) {
 
                 for (int i = 0; i < internalSelect.size(); i++) {
                     numOfNull = 0;
@@ -307,7 +307,7 @@ public class Pop {
         if (st1.predicate.equalsIgnoreCase(st2.predicate) && st1.numberOfArg == st2.numberOfArg) {
             int eqcheck = 0;
             for (int i = 0; i < st1.numberOfArg; i++) {
-                if ( st1.arguments.get(i).value != null && st1.arguments.get(i).value != null && st1.arguments.get(i).value == st2.arguments.get(i).value) {
+                if (st1.arguments.get(i).value != null && st1.arguments.get(i).value != null && st1.arguments.get(i).value == st2.arguments.get(i).value) {
                     eqcheck++;
                 } else if (st1.arguments.get(i).value == null) {
                     st1.arguments.get(i).constraints.add(st2.arguments.get(i));
@@ -347,6 +347,7 @@ public class Pop {
         if (internalfound) {
             writeToFile("Internal Action used and must find actions that is thread for link between " + link.provider.type + " to " + link.receiver.type + " for state " + link.condition.predicate);
             for (int i = 0; i < p.step.size(); i++) {
+                ArrayList<Action> nonPermit = new ArrayList<>();
                 if (p.step.get(i) != link.provider && p.step.get(i) != link.receiver) {
                     for (int j = 0; j < p.step.get(i).deletes.size(); j++) {
                         if (stateEquality(p.step.get(i).deletes.get(j), link.condition) && p.step.get(i) != link.provider && p.step.get(i) != link.receiver && link.provider != link.receiver) {
@@ -1344,8 +1345,11 @@ public class Pop {
                 for (int j = 0; j < state.arguments.get(i).constraints.size(); j++) {
                     s = s.concat(state.arguments.get(i).constraints.get(j).name + " can not be equall to :");
                     s = s.concat(": ");
-
-                    s = s.concat(state.arguments.get(i).value.toString());
+                    if (state.arguments.get(i).value == null) {
+                        s = s.concat("null");
+                    } else {
+                        s = s.concat(state.arguments.get(i).value.toString());
+                    }
                 }
             }
             if (i != state.numberOfArg - 1) {
@@ -1371,6 +1375,48 @@ public class Pop {
         return s;
     }
 
+    public ArrayList<Action>  track(Plan p, Action ac) {
+        Object[] order = p.ordering.toArray();
+        Set<Action> permited = new HashSet<>();
+        permited.add(ac);
+        for (int i = 0; i < p.ordering.size(); i++) {
+            Ordering o = (Ordering) order[i];
+            if (o.after == ac) {
+                permited.add(o.before);
+            }
+            if (o.before == ac) {
+                permited.add(o.after);
+            }
+        }
+
+        ArrayList<Action> last = new ArrayList<>();
+        last.add(ac);
+        for (int i = 0; i < p.link.size(); i++) {
+                ArrayList<Action> now = new ArrayList<>();
+
+            for (Action a : last) {
+                if (p.link.get(i).provider == a) {
+                    now.add(p.link.get(i).receiver);
+                    permited.add(p.link.get(i).receiver);
+                }
+
+                if (p.link.get(i).receiver == a) {
+                    now.add(p.link.get(i).provider);
+                    permited.add(p.link.get(i).provider);
+                }
+
+            }
+            last = now;
+        }
+        ArrayList<Action> x = new ArrayList<>();
+        for(int i=0;i<permited.size();i++){
+            Object[] per = permited.toArray();
+            Action permit = (Action)per[i];
+            x.add(permit);
+        }
+        return x;
+    }
+
     public boolean cycleCheck(Plan p, Action search, Action start) { // first time last just contain search action 
         ArrayList<Ordering> allord = new ArrayList<>();
         Object[] order = p.ordering.toArray();
@@ -1388,7 +1434,7 @@ public class Pop {
         int limit = p.step.size();
         ArrayList<Action> last = new ArrayList<>();
         last.add(search);
-        for (int i = 0; i < limit; i++) { // hadaghal size halghe
+        for (int i = 0; i < limit; i++) { // hadaxar size halghe
             ArrayList<Action> now = new ArrayList<>();
             for (Ordering ord : allord) {
                 for (Action ac : last) {
@@ -1438,14 +1484,14 @@ public class Pop {
                             v = ac1.adds.get(i).arguments.get(j);
                             v.value = ac2.preconditions.subgoals.get(k).state.arguments.get(j);
                             localbound.add(v);
-                           
+
                             equality1++;
                         } else if (ac1.adds.get(i).arguments.get(j).value != null && ac2.preconditions.subgoals.get(k).state.arguments.get(j).value == null) {
                             Variable v = new Variable();
                             v = ac2.preconditions.subgoals.get(k).state.arguments.get(j);
                             v.value = ac1.adds.get(i).arguments.get(j).value;
                             localbound.add(v);
-                            
+
                             equality1++;
                         } else if (ac1.adds.get(i).arguments.get(j).value == null && ac2.preconditions.subgoals.get(k).state.arguments.get(j).value == null) {
 
@@ -1458,34 +1504,35 @@ public class Pop {
                         }
                         equality++;
                     }
-                    if(!localbound.isEmpty() && inSubgoalRemove(localbound)){
+                    if (!localbound.isEmpty() && inSubgoalRemove(localbound)) {
                         boundAction(p, ac2, localbound, true);
                     }
-                    if(localbound.isEmpty() || (!localbound.isEmpty() && inSubgoalRemove(localbound))){
-                    if (equality == equality1) {
-                        for (int w = 0; w < p.subgoal.size(); w++) {
-                            if (p.subgoal.get(w).action == ac2 && p.subgoal.get(w).state == ac2.preconditions.subgoals.get(k).state) {
-                                p.subgoal.remove(w);
-                                break;
+                    if (localbound.isEmpty() || (!localbound.isEmpty() && inSubgoalRemove(localbound))) {
+                        if (equality == equality1) {
+                            for (int w = 0; w < p.subgoal.size(); w++) {
+                                if (p.subgoal.get(w).action == ac2 && p.subgoal.get(w).state == ac2.preconditions.subgoals.get(k).state) {
+                                    p.subgoal.remove(w);
+                                    break;
+                                }
                             }
                         }
                     }
-                }}
+                }
             }
         }
 
     }
-    
-    public boolean inSubgoalRemove(ArrayList<Variable> localbound){
-        for(int i=0;i<localbound.size();i++){
-            for(int j=0;j<localbound.size();j++){
-                if(i != j && localbound.get(i).name == localbound.get(j).name){
+
+    public boolean inSubgoalRemove(ArrayList<Variable> localbound) {
+        for (int i = 0; i < localbound.size(); i++) {
+            for (int j = 0; j < localbound.size(); j++) {
+                if (i != j && localbound.get(i).name == localbound.get(j).name) {
                     return false;
                 }
             }
         }
         return true;
-        
+
     }
 
 }
