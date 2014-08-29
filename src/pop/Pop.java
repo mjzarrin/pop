@@ -22,7 +22,6 @@ import java.util.Set;
  */
 public class Pop {
 
-
     ArrayList<State> states = new ArrayList<>();
     ArrayList<Action> operators = new ArrayList<>();
     ArrayList<String> objects = new ArrayList<>();
@@ -38,7 +37,7 @@ public class Pop {
     Subgoal subgoal;
     ArrayList<Subgoal> addedSubgoal;
     Plan backUpPlan;
-    int numOfTry =0;
+    int numOfTry = 0;
 
     public static void main(String[] args) throws IOException {
         // read readDomain
@@ -58,8 +57,8 @@ public class Pop {
 
     public void pop(Plan p) throws IOException {
 
-        if(numOfTry> 1000){
-            numOfTry =0;
+        if (numOfTry > 1000) {
+            numOfTry = 0;
             main(null);
         }
         numOfTry++;
@@ -98,14 +97,11 @@ public class Pop {
 //            boolean canDone = true;
             writeToFile("Start Searching in internal actions.");
 
-
-
-
 //            Internal
             Random r = new Random();
             double d = r.nextDouble();
-            double m = Math.pow(0.96,numOfTry);
-            if (notFoundAction && CYCLECHECK && d>m) {
+            double m = Math.pow(0.96, numOfTry);
+            if (notFoundAction && CYCLECHECK && d > m) {
 
                 for (int i = 0; i < internalSelect.size(); i++) {
                     numOfNull = 0;
@@ -311,7 +307,7 @@ public class Pop {
         if (st1.predicate.equalsIgnoreCase(st2.predicate) && st1.numberOfArg == st2.numberOfArg) {
             int eqcheck = 0;
             for (int i = 0; i < st1.numberOfArg; i++) {
-                if (st1.arguments.get(i).value == st2.arguments.get(i).value && st1.arguments.get(i).value != null && st1.arguments.get(i).value != null) {
+                if ( st1.arguments.get(i).value != null && st1.arguments.get(i).value != null && st1.arguments.get(i).value == st2.arguments.get(i).value) {
                     eqcheck++;
                 } else if (st1.arguments.get(i).value == null) {
                     st1.arguments.get(i).constraints.add(st2.arguments.get(i));
@@ -1118,7 +1114,7 @@ public class Pop {
 
     public void readProblem() throws FileNotFoundException, IOException {
 
-        try (BufferedReader problem = new BufferedReader(new FileReader("src/pop/sussman-anomaly.txt"))) {
+        try (BufferedReader problem = new BufferedReader(new FileReader("src/pop/simple.txt"))) {
             StringBuilder sb = new StringBuilder();
             String line = problem.readLine();
 
@@ -1433,28 +1429,28 @@ public class Pop {
 
                 if (ac1.adds.get(i).predicate.equalsIgnoreCase(ac2.preconditions.subgoals.get(k).state.predicate)) {
                     int equality1 = 0;
-                    int equality =0;
+                    int equality = 0;
+                    ArrayList<Variable> localbound = new ArrayList<>();
+
                     for (int j = 0; j < ac1.adds.get(i).numberOfArg; j++) {
-                        if(ac1.adds.get(i).arguments.get(j).value == null && ac2.preconditions.subgoals.get(k).state.arguments.get(j).value != null ){
+                        if (ac1.adds.get(i).arguments.get(j).value == null && ac2.preconditions.subgoals.get(k).state.arguments.get(j).value != null) {
                             Variable v = new Variable();
                             v = ac1.adds.get(i).arguments.get(j);
                             v.value = ac2.preconditions.subgoals.get(k).state.arguments.get(j);
-                            ArrayList<Variable> localbound = new ArrayList<>();
                             localbound.add(v);
-                            boundAction(p, ac1, localbound, true);
+                           
                             equality1++;
-                        }else if(ac1.adds.get(i).arguments.get(j).value != null && ac2.preconditions.subgoals.get(k).state.arguments.get(j).value == null ){
+                        } else if (ac1.adds.get(i).arguments.get(j).value != null && ac2.preconditions.subgoals.get(k).state.arguments.get(j).value == null) {
                             Variable v = new Variable();
                             v = ac2.preconditions.subgoals.get(k).state.arguments.get(j);
                             v.value = ac1.adds.get(i).arguments.get(j).value;
-                            ArrayList<Variable> localbound = new ArrayList<>();
                             localbound.add(v);
-                            boundAction(p, ac2, localbound, true);
-                            equality1++;
-                        }else if(ac1.adds.get(i).arguments.get(j).value == null && ac2.preconditions.subgoals.get(k).state.arguments.get(j).value == null ){
                             
                             equality1++;
-                        }else if (ac1.adds.get(i).arguments.get(j).value == ac2.preconditions.subgoals.get(k).state.arguments.get(j).value) {
+                        } else if (ac1.adds.get(i).arguments.get(j).value == null && ac2.preconditions.subgoals.get(k).state.arguments.get(j).value == null) {
+
+                            equality1++;
+                        } else if (ac1.adds.get(i).arguments.get(j).value == ac2.preconditions.subgoals.get(k).state.arguments.get(j).value) {
 
                             equality1++;
 
@@ -1462,18 +1458,34 @@ public class Pop {
                         }
                         equality++;
                     }
-                    if(equality == equality1){
-                        for(int w=0; w<p.subgoal.size();w++){
-                            if(p.subgoal.get(w).action == ac2 && p.subgoal.get(w).state == ac2.preconditions.subgoals.get(k).state ){
+                    if(!localbound.isEmpty() && inSubgoalRemove(localbound)){
+                        boundAction(p, ac2, localbound, true);
+                    }
+                    if(localbound.isEmpty() || (!localbound.isEmpty() && inSubgoalRemove(localbound))){
+                    if (equality == equality1) {
+                        for (int w = 0; w < p.subgoal.size(); w++) {
+                            if (p.subgoal.get(w).action == ac2 && p.subgoal.get(w).state == ac2.preconditions.subgoals.get(k).state) {
                                 p.subgoal.remove(w);
                                 break;
                             }
                         }
                     }
-                }
+                }}
             }
         }
 
+    }
+    
+    public boolean inSubgoalRemove(ArrayList<Variable> localbound){
+        for(int i=0;i<localbound.size();i++){
+            for(int j=0;j<localbound.size();j++){
+                if(i != j && localbound.get(i).name == localbound.get(j).name){
+                    return false;
+                }
+            }
+        }
+        return true;
+        
     }
 
 }
