@@ -1,0 +1,183 @@
+POP START 
+ 
+ 
+
+
+
+
+Subgoal Selected : ON(on-1: a , on-2: b)   for action GOALS()  
+Start Searching in internal actions.
+Internal Action not found or selected.
+Start Searching an operators Satisfies the subgoal.
+operators selected and goes for bounding. the operator is: STACK(sob: null,sunderob: null)  
+bounding operation for STACK(sob: null,sunderob: null)   for sob: a sunderob: b 
+actin bounds : STACK(sob: a,sunderob: b)  
+Clean All Subgoals that satisfied by this link
+ Link Added : 
+              link provider : STACK(sob: a,sunderob: b)  
+              link receiver  : GOALS()  
+              link condition: ON(on-1: a , on-2: b)  
+2 new Subgoals added as bellow: 
+HOLDING(sob: a)  
+CLEAR(sunderob: b)  
+
+find thread for new action : STACK(sob: a,sunderob: b)  
+Thread finding Starts ....
+external action used and this actions must check to not delete any conditions of all links in plan. our action is :STACK(sob: a,sunderob: b)  
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+
+
+
+Subgoal Selected : ON(on-1: b , on-2: c)   for action GOALS()  
+Start Searching in internal actions.
+Internal Action not found or selected.
+Start Searching an operators Satisfies the subgoal.
+operators selected and goes for bounding. the operator is: STACK(sob: null,sunderob: null)  
+bounding operation for STACK(sob: null,sunderob: null)   for sob: b sunderob: c 
+actin bounds : STACK(sob: b,sunderob: c)  
+Clean All Subgoals that satisfied by this link
+ Link Added : 
+              link provider : STACK(sob: b,sunderob: c)  
+              link receiver  : GOALS()  
+              link condition: ON(on-1: b , on-2: c)  
+2 new Subgoals added as bellow: 
+HOLDING(sob: b)  
+CLEAR(sunderob: c)  
+
+find thread for new action : STACK(sob: b,sunderob: c)  
+Thread finding Starts ....
+external action used and this actions must check to not delete any conditions of all links in plan. our action is :STACK(sob: b,sunderob: c)  
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+
+
+
+Subgoal Selected : HOLDING(sob: a)   for action STACK(sob: a,sunderob: b)  
+Start Searching in internal actions.
+Internal Action not found or selected.
+Start Searching an operators Satisfies the subgoal.
+operators selected and goes for bounding. the operator is: UNSTACK(sob: null,sunderob: null)  
+bounding operation for UNSTACK(sob: null,sunderob: null)   for sob: a 
+actin bounds : UNSTACK(sob: a,sunderob: null)  
+Clean All Subgoals that satisfied by this link
+actin bounds : UNSTACK(sob: a,sunderob: b)  
+Subgoal removed : CLEAR in action : STACK(sob: a,sunderob: b)  
+ Link Added : 
+              link provider : UNSTACK(sob: a,sunderob: b)  
+              link receiver  : STACK(sob: a,sunderob: b)  
+              link condition: HOLDING(sob: a)  
+3 new Subgoals added as bellow: 
+ON(sob: a , sunderob: b)  
+CLEAR(sob: a)  
+ARM-EMPTY()  
+
+find thread for new action : UNSTACK(sob: a,sunderob: b)  
+Thread finding Starts ....
+external action used and this actions must check to not delete any conditions of all links in plan. our action is :UNSTACK(sob: a,sunderob: b)  
+ Thread find :
+Thread Link :STACK(sob: a,sunderob: b)   to GOALS()  
+thread action is :UNSTACK(sob: a,sunderob: b)  
+thread condition : ON(sob: a , sunderob: b)  
+Ignore all conditions on this link and action 
+Constrain added for action :UNSTACK (sob: a,sunderob: b)   Constrain is not equlity for (sob b)
+but now i dont consider constrain
+Constrain added for action :UNSTACK (sob: a,sunderob: b)   Constrain is not equlity for (sunderob c)
+but now i dont consider constrain
+Thread Resolver Starts ....  
+ action UNSTACK(sob: a,sunderob: b)   comes before action STACK(sob: a,sunderob: b)  
+
+
+
+Subgoal Selected : HOLDING(sob: b)   for action STACK(sob: b,sunderob: c)  
+Start Searching in internal actions.
+Internal Action not found or selected.
+Start Searching an operators Satisfies the subgoal.
+operators selected and goes for bounding. the operator is: UNSTACK(sob: null,sunderob: null)  
+bounding operation for UNSTACK(sob: null,sunderob: null)   for sob: b 
+actin bounds : UNSTACK(sob: b,sunderob: null)  
+Clean All Subgoals that satisfied by this link
+actin bounds : UNSTACK(sob: b,sunderob: c)  
+Subgoal removed : CLEAR in action : STACK(sob: b,sunderob: c)  
+ Link Added : 
+              link provider : UNSTACK(sob: b,sunderob: c)  
+              link receiver  : STACK(sob: b,sunderob: c)  
+              link condition: HOLDING(sob: b)  
+3 new Subgoals added as bellow: 
+ON(sob: b , sunderob: c)  
+CLEAR(sob: b)  
+ARM-EMPTY()  
+
+find thread for new action : UNSTACK(sob: b,sunderob: c)  
+Thread finding Starts ....
+external action used and this actions must check to not delete any conditions of all links in plan. our action is :UNSTACK(sob: b,sunderob: c)  
+Constrain added for action :UNSTACK (sob: b,sunderob: c)   Constrain is not equlity for (sob a)
+but now i dont consider constrain
+Constrain added for action :UNSTACK (sob: b,sunderob: c)   Constrain is not equlity for (sunderob b)
+but now i dont consider constrain
+ Thread find :
+Thread Link :STACK(sob: b,sunderob: c)   to GOALS()  
+thread action is :UNSTACK(sob: b,sunderob: c)  
+thread condition : ON(sob: b , sunderob: c)  
+Ignore all conditions on this link and action 
+Thread Resolver Starts ....  
+ action UNSTACK(sob: b,sunderob: c)   comes before action STACK(sob: b,sunderob: c)  
+
+
+
+Subgoal Selected : ON(sob: a , sunderob: b)   for action UNSTACK(sob: a,sunderob: b)  
+Start Searching in internal actions.
+ Internal Action Selected : STACK(sob: a,sunderob: b)  
+Clean All Subgoals that satisfied by this link
+Subgoal removed : CLEAR in action : UNSTACK(sob: a,sunderob: b)  
+Subgoal removed : ARM-EMPTY in action : UNSTACK(sob: a,sunderob: b)  
+ Link Added : 
+              link provider : STACK(sob: a,sunderob: b)  
+              link receiver  : UNSTACK(sob: a,sunderob: b)  
+              link condition: ON(sob: a , sunderob: b)  
+Start Finding Thread for Internal Actions: 
+Thread finding Starts ....
+Internal Action used and must find actions that is thread for link between STACK to UNSTACK for state ON
+action in one track and not to be selected is : STACK(sob: a,sunderob: b)  
+action in one track and not to be selected is : GOALS()  
+action in one track and not to be selected is : STACK(sob: a,sunderob: b)  
+action in one track and not to be selected is : GOALS()  
+action in one track and not to be selected is : STACK(sob: a,sunderob: b)  
+action in one track and not to be selected is : GOALS()  
+action in one track and not to be selected is : STACK(sob: a,sunderob: b)  
+action in one track and not to be selected is : GOALS()  
+action in one track and not to be selected is : STACK(sob: a,sunderob: b)  
+action in one track and not to be selected is : GOALS()  
+action in one track and not to be selected is : STACK(sob: a,sunderob: b)  
+action in one track and not to be selected is : GOALS()  
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+
+
+
+Subgoal Selected : ON(sob: b , sunderob: c)   for action UNSTACK(sob: b,sunderob: c)  
+Start Searching in internal actions.
+ Internal Action Selected : STACK(sob: b,sunderob: c)  
+Clean All Subgoals that satisfied by this link
+Subgoal removed : CLEAR in action : UNSTACK(sob: b,sunderob: c)  
+Subgoal removed : ARM-EMPTY in action : UNSTACK(sob: b,sunderob: c)  
+ Link Added : 
+              link provider : STACK(sob: b,sunderob: c)  
+              link receiver  : UNSTACK(sob: b,sunderob: c)  
+              link condition: ON(sob: b , sunderob: c)  
+Start Finding Thread for Internal Actions: 
+Thread finding Starts ....
+Internal Action used and must find actions that is thread for link between STACK to UNSTACK for state ON
+action in one track and not to be selected is : STACK(sob: b,sunderob: c)  
+action in one track and not to be selected is : STACK(sob: b,sunderob: c)  
+action in one track and not to be selected is : STACK(sob: b,sunderob: c)  
+action in one track and not to be selected is : STACK(sob: b,sunderob: c)  
+action in one track and not to be selected is : STACK(sob: b,sunderob: c)  
+action in one track and not to be selected is : STACK(sob: b,sunderob: c)  
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+ num of try 7

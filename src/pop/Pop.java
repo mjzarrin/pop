@@ -38,6 +38,7 @@ public class Pop {
     ArrayList<Subgoal> addedSubgoal;
     Plan backUpPlan;
     int numOfTry = 0;
+    boolean endOfRecursive = true;
 
     public static void main(String[] args) throws IOException {
         // read readDomain
@@ -55,252 +56,323 @@ public class Pop {
 
     }
 
+    public ArrayList<String> availObject(Action ac, int index) {
+        ArrayList<String> avail = new ArrayList<>();
+        if (ac.arguments.isEmpty()) {
+            avail = null;
+        } else if (ac.arguments.size() == 1) {
+            if (ac.arguments.get(0).constraints.isEmpty()) {
+                avail = objects;
+            } else {
+                avail = (ArrayList<String>) objects.clone();
+                for (int i = 0; i < ac.arguments.get(0).constraints.size(); i++) {
+                    avail.remove(ac.arguments.get(0).constraints.get(i));
+                }
+
+            }
+        } else if (ac.arguments.size() == 2) {
+            if (index == 0) {
+                avail = (ArrayList<String>) objects.clone();
+                for (int i = 0; i < ac.arguments.get(0).constraints.size(); i++) {
+                    avail.remove(ac.arguments.get(0).constraints.get(i));
+                }
+                if (ac.arguments.get(1).value != null) {
+                    avail.remove(ac.arguments.get(1).value);
+                }
+
+            } else {
+                avail = (ArrayList<String>) objects.clone();
+                for (int i = 0; i < ac.arguments.get(1).constraints.size(); i++) {
+                    avail.remove(ac.arguments.get(1).constraints.get(i));
+                }
+                if (ac.arguments.get(1).value != null) {
+                    avail.remove(ac.arguments.get(0).value);
+                }
+            }
+
+        }
+        return avail;
+
+    }
+
     public void pop(Plan p) throws IOException {
 
-        if (numOfTry > 1000) {
+        if (numOfTry > 100) {
+
+            System.err.println(" num of try " + numOfTry);
             numOfTry = 0;
             main(null);
         }
         numOfTry++;
         if (p.subgoal.isEmpty()) {
-
+            writeToFile(" num of try " + numOfTry);
+            this.endOfRecursive = false;
+            writer.close();
+            System.exit(0);
             return;
 
         } else {
+            if (endOfRecursive) {
 //            get back up of p
-            backUpPlan = clone(p);
+                backUpPlan = clone(p);
 
-            subgoal = leastCommitmentStrategy(p.subgoal);
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
-            System.out.println("Subgoal Selected : " + subgoal.state.predicate + StateArgumenttoString(subgoal.state) + " for action " + subgoal.action.type + ActionsArgumnetsToString(subgoal.action));
+                subgoal = leastCommitmentStrategy(p.subgoal);
+                writeToFile("");
+                writeToFile("");
+                writeToFile("");
+                writeToFile("Subgoal Selected : " + subgoal.state.predicate + StateArgumenttoString(subgoal.state) + " for action " + subgoal.action.type + ActionsArgumnetsToString(subgoal.action));
 
-            p.threat = new ArrayList<Threat>();
+                p.threat = new ArrayList<Threat>();
 //            Subgoal subgoal = p.subgoal.get(0);
 //            p.subgoal.remove(0);
 
 //            }
+                Action ac = new Action();
 
+                boolean notFoundAction = true; // for reorderActionsInPlan select or reorderOperators
+                ArrayList<Variable> localbound = new ArrayList<>();
 
-            Action ac = new Action();
-
-            boolean notFoundAction = true; // for reorderActionsInPlan select or reorderOperators
-            ArrayList<Variable> localbound = new ArrayList<>();
-
-            // reorderActionsInPlan choose action
-            ArrayList<Action> internalSelect = reorderActionsInPlan(p);
-            ArrayList<Action> posibleActions;
-            int numOfNull;
-            // opertators and steps unordering
-            boolean internalFound = false;
+                // reorderActionsInPlan choose action
+                ArrayList<Action> internalSelect = reorderActionsInPlan(p);
+                ArrayList<Action> posibleActions;
+                int numOfNull;
+                // opertators and steps unordering
+                boolean internalFound = false;
 //            boolean canDone = true;
-            System.out.println("Start Searching in internal actions.");
+                writeToFile("Start Searching in internal actions.");
 
 //            Internal
-            Random r = new Random();
-            double d = r.nextDouble();
-            double m = Math.pow(0.96, numOfTry);
-            if (notFoundAction && CYCLECHECK && d > 0.5) {
+                if (notFoundAction && CYCLECHECK) {
 
-                for (int i = 0; i < internalSelect.size(); i++) {
-                    numOfNull = 0;
-                    if (notFoundAction) {
-                        for (int j = 0; j < internalSelect.get(i).adds.size(); j++) {
-                            if (internalSelect.get(i) != subgoal.action) {
+                    for (int i = 0; i < internalSelect.size(); i++) {
+                        numOfNull = 0;
+                        if (notFoundAction) {
+                            for (int j = 0; j < internalSelect.get(i).adds.size(); j++) {
+                                if (internalSelect.get(i) != subgoal.action) {
 
-                                if (internalSelect.get(i).adds.get(j).predicate.equalsIgnoreCase(subgoal.state.predicate)) {
+                                    if (internalSelect.get(i).adds.get(j).predicate.equalsIgnoreCase(subgoal.state.predicate)) {
 
-                                    int temp = 0;
-                                    int k;
-                                    ArrayList<Variable> arvar = new ArrayList<>();
-                                    //       ArrayList<Object> forbidValue = new ArrayList<>();
-                                    for (k = 0; k < subgoal.state.numberOfArg; k++) {
-                                        if (subgoal.state.arguments.get(k).value != null && internalSelect.get(i).adds.get(j).arguments.get(k).value != null) {
-                                            if (internalSelect.get(i).adds.get(j).arguments.get(k).value.equals(subgoal.state.arguments.get(k).value)) {
+                                        int temp = 0;
+                                        int k;
+                                        ArrayList<Variable> boundAc = new ArrayList<>();
+                                        ArrayList<Variable> boundSubgoalAction = new ArrayList<>();
+                                        //       ArrayList<Object> forbidValue = new ArrayList<>();
+                                        for (k = 0; k < subgoal.state.numberOfArg; k++) {
+                                            if (subgoal.state.arguments.get(k).value != null && internalSelect.get(i).adds.get(j).arguments.get(k).value != null) {
+                                                if (internalSelect.get(i).adds.get(j).arguments.get(k).value.equals(subgoal.state.arguments.get(k).value)) {
+                                                    temp++;
+                                                }
+
+                                            } else if (subgoal.state.arguments.get(k).value == null && internalSelect.get(i).adds.get(j).arguments.get(k).value != null) {
+
+                                                Variable v = new Variable();
+//                                            if (operatorsOfAction(internalSelect.get(i)) != null) {
+//                                                v.name = operatorsOfAction(internalSelect.get(i)).adds.get(j).arguments.get(k).name;
+//
+//                                            } else {
+//                                                v.name = subgoal.state.arguments.get(k).name;
+//
+//                                            }
+                                                v.name = subgoal.state.arguments.get(k).name;
+
+                                                v.value = internalSelect.get(i).adds.get(j).arguments.get(k).value;
+
+                                                //                 if(!forbidValue.contains(v.value)){
+                                                boundSubgoalAction.add(v);
                                                 temp++;
-                                            }
+                                                //                      forbidValue.add(v.value);
+                                                //                 }
 
-                                        } else if (subgoal.state.arguments.get(k).value == null && internalSelect.get(i).adds.get(j).arguments.get(k).value != null) {
-
-                                            Variable v = new Variable();
-                                            if (operatorsOfAction(internalSelect.get(i)) != null) {
+                                            } else if (internalSelect.get(i).adds.get(j).arguments.get(k).value == null && subgoal.state.arguments.get(k).value != null) {
+                                                Variable v = new Variable();
+//                                            if (operatorsOfAction(internalSelect.get(i)) != null) {
+//                                                v.name = operatorsOfAction(internalSelect.get(i)).adds.get(j).arguments.get(k).name;
+//
+//                                            } else {
+//                                                v.name = subgoal.state.arguments.get(k).name;
+//
+//                                            }
                                                 v.name = operatorsOfAction(internalSelect.get(i)).adds.get(j).arguments.get(k).name;
 
+                                                v.value = subgoal.state.arguments.get(k).value;
+                                                //                    if(!forbidValue.contains(v.value)){
+                                                boundAc.add(v);
+                                                temp++;
+                                                //                        forbidValue.add(v.value);
+                                                //                   }
+                                            } else if (internalSelect.get(i).adds.get(j).arguments.get(k).value == null && subgoal.state.arguments.get(k).value == null) {
+                                                // inja bayad codi bezanam ke dorost bashe
+                                                temp++;
+                                                // fekr mikonam bayad constarin tarif konam faghat
                                             } else {
-                                                v.name = subgoal.state.arguments.get(k).name;
-
+                                                break;
                                             }
-                                            v.value = internalSelect.get(i).adds.get(j).arguments.get(k).value;
-
-                                            //                 if(!forbidValue.contains(v.value)){
-                                            arvar.add(v);
-                                            temp++;
-                                            //                      forbidValue.add(v.value);
-                                            //                 }
-
-                                        } else if (internalSelect.get(i).adds.get(j).arguments.get(k).value == null && subgoal.state.arguments.get(k).value != null) {
-                                            Variable v = new Variable();
-                                            if (operatorsOfAction(internalSelect.get(i)) != null) {
-                                                v.name = operatorsOfAction(internalSelect.get(i)).adds.get(j).arguments.get(k).name;
-
-                                            } else {
-                                                v.name = subgoal.state.arguments.get(k).name;
-
-                                            }
-
-                                            v.value = subgoal.state.arguments.get(k).value;
-                                            //                    if(!forbidValue.contains(v.value)){
-                                            arvar.add(v);
-                                            temp++;
-                                            //                        forbidValue.add(v.value);
-                                            //                   }
-                                        } else if (internalSelect.get(i).adds.get(j).arguments.get(k).value == null && subgoal.state.arguments.get(k).value == null) {
-                                            // inja bayad codi bezanam ke dorost bashe
-                                            temp++;
-                                            // fekr mikonam bayad constarin tarif konam faghat
-                                        } else {
-                                            break;
                                         }
-                                    }
-                                    boolean canDone = linkAndOrderTest(p, internalSelect.get(i), subgoal); // check loop condition in plan
-                                    if ((temp == k && temp != 0) || subgoal.state.numberOfArg == 0 && canDone) {
+                                        boolean canDone = linkAndOrderTest(p, internalSelect.get(i), subgoal); // check loop condition in plan
+                                        if ((temp == k && temp != 0) || subgoal.state.numberOfArg == 0 && canDone) {
 //                                Action ac = null;
 
-                                        ac = internalSelect.get(i);
-                                        System.out.println(" Internal Action Selected : " + ac.type + ActionsArgumnetsToString(ac));
+                                            ac = internalSelect.get(i);
+                                            writeToFile(" Internal Action Selected : " + ac.type + ActionsArgumnetsToString(ac));
 
-                                        if (arvar.size() > 0) {
-                                            localbound = arvar;
+                                            if (boundAc.size() > 0) {
+                                                localbound = boundAc;
 
-                                            if (canBoundAction(ac, localbound)) {
-                                                System.out.println("bounding operation for " + ac.type + ActionsArgumnetsToString(ac) + " And " + subgoal.action.type + ActionsArgumnetsToString(subgoal.action) + " is start for " + localboundArgumentToString(localbound));
+                                                if (canBoundAction(ac, localbound)) {
+                                                    writeToFile("bounding operation for " + ac.type + ActionsArgumnetsToString(ac) + " for " + localboundArgumentToString(localbound));
 
-                                                boundAction(p, ac, localbound, true);
-                                                boundAction(p, subgoal.action, localbound, true);
+                                                    boundAction(p, ac, localbound, true);
 
-//                                            System.out.println("bounding operation for " + ac.type + "And "+subgoal.action.type+ ActionsArgumnetsToString(ac) + " is start for " + localboundArgumentToString(localbound));
-                                            } else {
-                                                // find in weakthread
-                                                for (ConstraintThread consthread : this.consthread) {
-                                                    for (Variable localbound1 : localbound) {
-                                                        if ((consthread.variable.name == null ? localbound1.name == null : consthread.variable.name.equals(localbound1.name)) && consthread.thread.action == ac) {
+                                                    writeToFile("actin bounds : " + ac.type + ActionsArgumnetsToString(ac));
+
+//                                            writeToFile("bounding operation for " + ac.type + "And "+subgoal.action.type+ ActionsArgumnetsToString(ac) + " is start for " + localboundArgumentToString(localbound));
+                                                } else {
+                                                    // find in weakthread
+                                                    for (ConstraintThread consthread : this.consthread) {
+                                                        for (Variable localbound1 : localbound) {
+                                                            if ((consthread.variable.name == null ? localbound1.name == null : consthread.variable.name.equals(localbound1.name)) && consthread.thread.action == ac) {
 //                                                        
-                                                            p.threat.add(consthread.thread);
+                                                                p.threat.add(consthread.thread);
+                                                            }
                                                         }
+
                                                     }
 
                                                 }
+                                            }
 
+                                            if (boundSubgoalAction.size() > 0) {
+                                                localbound = boundSubgoalAction;
+
+                                                if (canBoundAction(subgoal.action, localbound)) {
+                                                    writeToFile("bounding operation for " + subgoal.action.type + ActionsArgumnetsToString(subgoal.action) + " for " + localboundArgumentToString(localbound));
+
+                                                    boundAction(p, subgoal.action, localbound, true);
+                                                    writeToFile("actin bounds : " + subgoal.action.type + ActionsArgumnetsToString(subgoal.action));
+
+//                                            writeToFile("bounding operation for " + ac.type + "And "+subgoal.action.type+ ActionsArgumnetsToString(ac) + " is start for " + localboundArgumentToString(localbound));
+                                                } else {
+                                                    // find in weakthread
+                                                    for (ConstraintThread consthread : this.consthread) {
+                                                        for (Variable localbound1 : localbound) {
+                                                            if ((consthread.variable.name == null ? localbound1.name == null : consthread.variable.name.equals(localbound1.name)) && consthread.thread.action == subgoal.action) {
+//                                                        
+                                                                p.threat.add(consthread.thread);
+                                                            }
+                                                        }
+
+                                                    }
+
+                                                }
+                                            }
+
+                                            CYCLECHECK = cycleCheck(p, ac, subgoal.action);
+                                            if (CYCLECHECK == false) {
+                                                writeToFile("program find a cycle if we add the link so try another ways.");
+                                            } else {
+                                                Link link = new Link();
+                                                link.provider = ac;
+                                                link.receiver = subgoal.action;
+                                                link.condition = subgoal.state;
+                                                subgoalRemover(p, link.provider, link.receiver);
+                                                p.link.add(link);
+                                                writeToFile(" Link Added : ");
+                                                writeToFile("              " + "link provider : " + link.provider.type + ActionsArgumnetsToString(link.provider));
+                                                writeToFile("              " + "link receiver  : " + link.receiver.type + ActionsArgumnetsToString(link.receiver));
+                                                writeToFile("              " + "link condition: " + link.condition.predicate + StateArgumenttoString(link.condition));
+                                                internalFound = true;
+                                                notFoundAction = false;
+                                                writeToFile("Start Finding Thread for Internal Actions: ");
+                                                findThread(p, backUpPlan, ac, link, internalFound);
+
+                                                break;
                                             }
                                         }
 
-
-                                        CYCLECHECK = cycleCheck(p, ac, subgoal.action);
-                                        if (CYCLECHECK == false) {
-                                            System.out.println("program find a cycle if we add the link so try another ways.");
-                                        } else {
-                                            Link link = new Link();
-                                            link.provider = ac;
-                                            link.receiver = subgoal.action;
-                                            link.condition = subgoal.state;
-                                            subgoalRemover(p, link.provider, link.receiver);
-                                            p.link.add(link);
-                                            System.out.println(" Link Added : ");
-                                            System.out.println("              " + "link provider : " + link.provider.type + ActionsArgumnetsToString(link.provider));
-                                            System.out.println("              " + "link receiver  : " + link.receiver.type + ActionsArgumnetsToString(link.receiver));
-                                            System.out.println("              " + "link condition: " + link.condition.predicate + StateArgumenttoString(link.condition));
-                                            internalFound = true;
-                                            notFoundAction = false;
-                                            System.out.println("Start Finding Thread for Internal Actions: ");
-                                            findThread(p, backUpPlan, ac, link, internalFound);
-
-                                            break;
-                                        }
                                     }
-
                                 }
                             }
                         }
                     }
                 }
-            }
-            //  reorderOperators choose
+                //  reorderOperators choose
 
-            reorderOperators();
-            //External
-            if (notFoundAction) {
-                System.out.println("Internal Action not found or selected.");
-                System.out.println("Start Searching an operators Satisfies the subgoal.");
-                for (int i = 0; i < operators.size(); i++) {
-                    for (int j = 0; j < operators.get(i).adds.size(); j++) {
-                        if (notFoundAction) {
-                            if (operators.get(i).adds.get(j).predicate.equalsIgnoreCase(subgoal.state.predicate)) {
+                reorderOperators();
+                //External
+                if (notFoundAction) {
+                    writeToFile("Internal Action not found or selected.");
+                    writeToFile("Start Searching an operators Satisfies the subgoal.");
+                    for (int i = 0; i < operators.size(); i++) {
+                        for (int j = 0; j < operators.get(i).adds.size(); j++) {
+                            if (notFoundAction) {
+                                if (operators.get(i).adds.get(j).predicate.equalsIgnoreCase(subgoal.state.predicate)) {
 
-                                //                            ac = copyAction(operators.get(i));
-                                //                            ac = new Action(operators.get(i));
-                                ac = copyAction(operators.get(i));
-                                System.out.println("operators selected and goes for bounding. the operator is: " + ac.type + ActionsArgumnetsToString(ac));
+                                    //                            ac = copyAction(operators.get(i));
+                                    //                            ac = new Action(operators.get(i));
+                                    ac = copyAction(operators.get(i));
+                                    orderingOperators(i);
+                                    writeToFile("operators selected and goes for bounding. the operator is: " + ac.type + ActionsArgumnetsToString(ac));
 
-                                ArrayList<Variable> arrvar = new ArrayList<>();
-                                for (int k = 0; k < ac.adds.get(j).numberOfArg; k++) { // tedade argument ha
-                                    Variable v = new Variable();
-                                    v.value = subgoal.state.arguments.get(k).value;
-                                    v.name = ac.adds.get(j).arguments.get(k).name;
-                                    arrvar.add(v);
+                                    ArrayList<Variable> arrvar = new ArrayList<>();
+                                    for (int k = 0; k < ac.adds.get(j).numberOfArg; k++) { // tedade argument ha
+                                        Variable v = new Variable();
+                                        v.value = subgoal.state.arguments.get(k).value;
+                                        v.name = ac.adds.get(j).arguments.get(k).name;
+                                        arrvar.add(v);
 //                                    ac.arguments.get(k).value = v.value;
 
+                                    }
+
+                                    localbound.addAll(arrvar);
+                                    bounded.addAll(ac.arguments);
+
+                                    notFoundAction = false;
+                                    break;
                                 }
-
-                                localbound.addAll(arrvar);
-                                bounded.addAll(ac.arguments);
-
-                                notFoundAction = false;
-                                break;
                             }
                         }
                     }
-                }
-                if (localbound.isEmpty()) {
-                    System.out.println("Nothing for Bounding");
+                    if (localbound.isEmpty()) {
+                        writeToFile("Nothing for Bounding");
 
-                } else {
-                    System.out.println("bounding operation for " + ac.type + ActionsArgumnetsToString(ac) + " And " + subgoal.action.type + ActionsArgumnetsToString(subgoal.action) + " is start for " + localboundArgumentToString(localbound));
+                    } else {
+                        writeToFile("bounding operation for " + ac.type + ActionsArgumnetsToString(ac) + " for " + localboundArgumentToString(localbound));
 
-//                    System.out.println("bounding operation for action is start for " + localboundArgumentToString(localbound));
-                    ac = boundAction(p, ac, localbound, false);
-                    subgoal.action = boundAction(p, subgoal.action, localbound, false);
+//                    writeToFile("bounding operation for action is start for " + localboundArgumentToString(localbound));
+                        boundAction(p, ac, localbound, false);
+                        writeToFile("actin bounds : " + ac.type + ActionsArgumnetsToString(ac));
 
-                }
-                // action inja bound shoode ast 
-                Link link = new Link();
+//                    boundAction(p, subgoal.action, localbound, false);
+                    }
+                    // action inja bound shoode ast 
+                    Link link = new Link();
 //                link.provider = new Action(ac);
-                link.provider = ac;
-                link.receiver = subgoal.action;
-                link.condition = subgoal.state;
-                subgoalRemover(p, link.provider, link.receiver);
-                p.link.add(link);
-                System.out.println(" Link Added : ");
-                System.out.println("              " + "link provider : " + link.provider.type + ActionsArgumnetsToString(link.provider));
-                System.out.println("              " + "link receiver  : " + link.receiver.type + ActionsArgumnetsToString(link.receiver));
-                System.out.println("              " + "link condition: " + link.condition.predicate + StateArgumenttoString(link.condition));
+                    link.provider = ac;
+                    link.receiver = subgoal.action;
+                    link.condition = subgoal.state;
+                    subgoalRemover(p, link.provider, link.receiver);
+                    p.link.add(link);
+                    writeToFile(" Link Added : ");
+                    writeToFile("              " + "link provider : " + link.provider.type + ActionsArgumnetsToString(link.provider));
+                    writeToFile("              " + "link receiver  : " + link.receiver.type + ActionsArgumnetsToString(link.receiver));
+                    writeToFile("              " + "link condition: " + link.condition.predicate + StateArgumenttoString(link.condition));
 
-                p.subgoal.addAll(ac.preconditions.subgoals); // age subgoali bashe ke bound nabashe chi mishe?????
-                addedSubgoal = ac.preconditions.subgoals;
-                System.out.println(ac.preconditions.subgoals.size() + " new Subgoals added as bellow: ");
-                System.out.println(subgoalToString(ac.preconditions.subgoals));
-                p.step.add(ac);
+                    p.subgoal.addAll(ac.preconditions.subgoals); // age subgoali bashe ke bound nabashe chi mishe?????
+                    addedSubgoal = ac.preconditions.subgoals;
+                    writeToFile(ac.preconditions.subgoals.size() + " new Subgoals added as bellow: ");
+                    writeToFile(subgoalToString(ac.preconditions.subgoals));
+                    p.step.add(ac);
 
-                notFoundAction = false;
-                System.out.println("find thread for new action : " + ac.type + ActionsArgumnetsToString(ac));
-                findThread(p, backUpPlan, ac, link, internalFound);
-                CYCLECHECK = true;
+                    notFoundAction = false;
+                    writeToFile("find thread for new action : " + ac.type + ActionsArgumnetsToString(ac));
+                    findThread(p, backUpPlan, ac, link, internalFound);
+                    CYCLECHECK = true;
+                }
+                resolvThread(p);
+                pop(p);
+                return;
             }
-            resolvThread(p);
-            pop(p);
-            return;
         }
-
     }
 
     public boolean stateEquality(State st1, State st2) throws IOException {
@@ -309,15 +381,15 @@ public class Pop {
             for (int i = 0; i < st1.numberOfArg; i++) {
                 if (st1.arguments.get(i).value != null && st1.arguments.get(i).value != null && st1.arguments.get(i).value == st2.arguments.get(i).value) {
                     eqcheck++;
-                }else if (st1.arguments.get(i).value == null && st2.arguments.get(i).value == null) {
+                } else if (st1.arguments.get(i).value == null && st2.arguments.get(i).value == null) {
                     eqcheck++;
-                }else if (st1.arguments.get(i).value == null) {
+                } else if (st1.arguments.get(i).value == null) {
                     st1.arguments.get(i).constraints.add(st2.arguments.get(i));
-                    System.out.println("Constrain added for predict thread " + st1.arguments.get(i).name + " not to be " + st2.arguments.get(i).value.toString());
+                    writeToFile("Constrain added for predict thread " + st1.arguments.get(i).name + " not to be " + st2.arguments.get(i).value.toString());
                 } else if (st2.arguments.get(i).value == null) {
                     st2.arguments.get(i).constraints.add(st1.arguments.get(i));
-                    System.out.println("Constrain added for predict thread" + st2.arguments.get(i).name + " not to be " + st1.arguments.get(i).value.toString());
-                } 
+                    writeToFile("Constrain added for predict thread" + st2.arguments.get(i).name + " not to be " + st1.arguments.get(i).value.toString());
+                }
 
             }
             if (eqcheck == st1.numberOfArg) {
@@ -343,22 +415,25 @@ public class Pop {
     }
 
     public void findThread(Plan p, Plan backUpPlan, Action ac, Link link, boolean internalfound) throws IOException {
-        System.out.println("Thread finding Starts ....");
+        writeToFile("Thread finding Starts ....");
         if (internalfound) {
-            System.out.println("Internal Action used and must find actions that is thread for link between " + link.provider.type + " to " + link.receiver.type + " for state " + link.condition.predicate);
+            writeToFile("Internal Action used and must find actions that is thread for link between " + link.provider.type + " to " + link.receiver.type + " for state " + link.condition.predicate);
             for (int i = 0; i < p.step.size(); i++) {
                 ArrayList<Action> notPermit = track(p, ac);
+                for (Action non : notPermit) {
+                    writeToFile("action in one track and not to be selected is : " + non.type + ActionsArgumnetsToString(non));
+                }
                 if (!notPermit.contains(p.step.get(i))) {
 
                     if (p.step.get(i) != link.provider && p.step.get(i) != link.receiver) {
                         for (int j = 0; j < p.step.get(i).deletes.size(); j++) {
                             if (stateEquality(p.step.get(i).deletes.get(j), link.condition) && p.step.get(i) != link.provider && p.step.get(i) != link.receiver && link.provider != link.receiver) {
                                 ac = p.step.get(i);
-                                System.out.println(" Thread find :");
-                                System.out.println("Thread Link :" + link.provider.type + ActionsArgumnetsToString(link.provider) + " to " + link.receiver.type + ActionsArgumnetsToString(link.receiver));
-                                System.out.println("thread action is :" + ac.type + ActionsArgumnetsToString(ac));
-                                System.out.println("thread condition : " + link.condition.predicate + StateArgumenttoString(link.condition));
-                                System.out.println("Ignore all conditions on this link and action ");
+                                writeToFile(" Thread find :");
+                                writeToFile("Thread Link :" + link.provider.type + ActionsArgumnetsToString(link.provider) + " to " + link.receiver.type + ActionsArgumnetsToString(link.receiver));
+                                writeToFile("thread action is :" + ac.type + ActionsArgumnetsToString(ac));
+                                writeToFile("thread condition : " + link.condition.predicate + StateArgumenttoString(link.condition));
+                                writeToFile("Ignore all conditions on this link and action ");
                                 Threat thread = new Threat();
                                 thread.link = link;
                                 thread.action = ac;
@@ -375,7 +450,7 @@ public class Pop {
             }
 
         } else { // for externall add
-            System.out.println("external action used and this actions must check to not delete any conditions of all links in plan. our action is :" + ac.type + ActionsArgumnetsToString(ac));
+            writeToFile("external action used and this actions must check to not delete any conditions of all links in plan. our action is :" + ac.type + ActionsArgumnetsToString(ac));
 
             for (int j = 0; j < backUpPlan.link.size(); j++) {
                 for (int i = 0; i < ac.deletes.size(); i++) {
@@ -395,8 +470,8 @@ public class Pop {
                                 v = p.link.get(j).condition.arguments.get(k);
                                 v.name = ac.deletes.get(i).arguments.get(k).name;
                                 indexOfVariable = ac.arguments.indexOf(v);
-                                System.out.println("Constrain added for action :" + ac.type + " " + ActionsArgumnetsToString(ac) + " Constrain is not equlity for " + variableToString(v));
-                                System.out.println("but now i dont consider constrain");
+                                writeToFile("Constrain added for action :" + ac.type + " " + ActionsArgumnetsToString(ac) + " Constrain is not equlity for " + variableToString(v));
+                                writeToFile("but now i dont consider constrain");
 //                                ac.arguments.get(i).constraints.add(v);
                             } else if (ac.deletes.get(i).arguments.get(k).value != null || p.link.get(j).condition.arguments.get(k).value == null) {
                                 temp = temp++;
@@ -429,27 +504,27 @@ public class Pop {
                             if (constrain.isEmpty()) {
 
                                 Threat thread = new Threat();
-//                            System.out.println("Hard Thread Found ( with null check ) :");
+//                            writeToFile("Hard Thread Found ( with null check ) :");
                                 thread.link = p.link.get(j);
                                 thread.action = ac;
                                 thread.state = ac.deletes.get(i);
-                                System.out.println(" Thread find :");
-                                System.out.println("Thread Link :" + thread.link.provider.type + ActionsArgumnetsToString(thread.link.provider) + " to " + thread.link.receiver.type + ActionsArgumnetsToString(thread.link.receiver));
-                                System.out.println("thread action is :" + thread.action.type + ActionsArgumnetsToString(thread.action));
-                                System.out.println("thread condition : " + thread.state.predicate + StateArgumenttoString(thread.state));
-//                                System.out.println("mikham bebinam chiye  : " + thread.link.condition.predicate + StateArgumenttoString(thread.link.condition));
+                                writeToFile(" Thread find :");
+                                writeToFile("Thread Link :" + thread.link.provider.type + ActionsArgumnetsToString(thread.link.provider) + " to " + thread.link.receiver.type + ActionsArgumnetsToString(thread.link.receiver));
+                                writeToFile("thread action is :" + thread.action.type + ActionsArgumnetsToString(thread.action));
+                                writeToFile("thread condition : " + thread.state.predicate + StateArgumenttoString(thread.state));
+//                                writeToFile("mikham bebinam chiye  : " + thread.link.condition.predicate + StateArgumenttoString(thread.link.condition));
 
-                                System.out.println("Ignore all conditions on this link and action ");
+                                writeToFile("Ignore all conditions on this link and action ");
 
                                 p.threat.add(thread);
                                 break; // age chand ta thread az ye action roye ye link rokh dad , faghat yekisho mizare to thread ha , badan mishe behtaresh kard.
                             } else {
                                 ac.arguments.get(indexOfVariable).constraints.addAll(constrain);
 
-                                System.out.println("weak Thread find : Resolv by constarin");
-                                System.out.println("Thread Link :" + p.link.get(j).provider.type + ActionsArgumnetsToString(p.link.get(j).provider) + " to " + p.link.get(j).receiver.type + ActionsArgumnetsToString(p.link.get(j).receiver));
-                                System.out.println("thread action is :" + ac.type + ActionsArgumnetsToString(ac));
-                                System.out.println("thread condition : " + ac.deletes.get(i).predicate + " must not equals to " + constrainToString(ac.arguments.get(i)));
+                                writeToFile("weak Thread find : Resolv by constarin");
+                                writeToFile("Thread Link :" + p.link.get(j).provider.type + ActionsArgumnetsToString(p.link.get(j).provider) + " to " + p.link.get(j).receiver.type + ActionsArgumnetsToString(p.link.get(j).receiver));
+                                writeToFile("thread action is :" + ac.type + ActionsArgumnetsToString(ac));
+                                writeToFile("thread condition : " + ac.deletes.get(i).predicate + " must not equals to " + constrainToString(ac.arguments.get(i)));
 
                             }
                         }
@@ -462,18 +537,18 @@ public class Pop {
 
         }
         if (p.threat.isEmpty()) {
-            System.out.println("no thread found");
+            writeToFile("no thread found");
         }
 
     }
 
     public void resolvThread(Plan p) throws IOException {
         // resolve threads 
-        System.out.println("Thread Resolver Starts ....  ");
+        writeToFile("Thread Resolver Starts ....  ");
         if (p.threat.isEmpty()) {
-            System.out.println("There is no thread to Resolve");
+            writeToFile("There is no thread to Resolve");
         } else {
-//            System.out.println("Thread Resolve as below");
+//            writeToFile("Thread Resolve as below");
             for (Threat thread : p.threat) {
                 Ordering o = new Ordering();
                 if (thread.action != init && thread.action != goal) {
@@ -504,10 +579,12 @@ public class Pop {
 
                 }
 
-                System.out.println(" action " + o.before.type + ActionsArgumnetsToString(o.before) + " comes before action " + o.after.type + ActionsArgumnetsToString(o.after));
+                writeToFile(" action " + o.before.type + ActionsArgumnetsToString(o.before) + " comes before action " + o.after.type + ActionsArgumnetsToString(o.after));
                 CYCLECHECK = cycleCheck(p, o.before, o.after);
                 if (CYCLECHECK) {
-                    p.ordering.add(o);
+                    if (!p.ordering.contains(o)) {
+                        p.ordering.add(o);
+                    }
 
                 } else {
                     p.step.remove(p.step.size() - 1);
@@ -516,8 +593,8 @@ public class Pop {
                     if (!p.subgoal.contains(subgoal)) {
                         p.subgoal.add(subgoal);
                     }
-                    System.out.println("All Operation Failed in this turn of loop becuase adding order cause a loop.");
-                    System.out.println("the plan back to previous state and try another way to find solution.");
+                    writeToFile("All Operation Failed in this turn of loop becuase adding order cause a loop.");
+                    writeToFile("the plan back to previous state and try another way to find solution.");
                     pop(p);
                     return;
                 }
@@ -611,28 +688,28 @@ public class Pop {
         //    numberOfPredicates = new int[subgoals.size()];
         Subgoal s = subgoals.get(0);
         int index = 0;
-        Random r = new Random();
-        for (int i = 1; i < subgoals.size(); i++) {
-            int numOfNull = 1;
-            for (int j = 0; j < subgoals.get(i).state.numberOfArg; j++) {
-                if (subgoals.get(i).state.arguments.get(j).value == null) {
-                    numOfNull++;
-                }
-
-            }
-
-            if (subgoals.get(i).state.numberOfArg * r.nextInt() * numOfNull < subgoals.get(i - 1).state.numberOfArg * r.nextInt() * numOfNull) {
-
-                s = subgoals.get(i);
-                index = i;
-
-            }
-        }
+//        Random r = new Random();
+//        for (int i = 1; i < subgoals.size(); i++) {
+//            int numOfNull = 1;
+//            for (int j = 0; j < subgoals.get(i).state.numberOfArg; j++) {
+//                if (subgoals.get(i).state.arguments.get(j).value == null) {
+//                    numOfNull++;
+//                }
+//
+//            }
+//
+//            if (subgoals.get(i).state.numberOfArg * r.nextInt() * numOfNull < subgoals.get(i - 1).state.numberOfArg * r.nextInt() * numOfNull) {
+//
+//                s = subgoals.get(i);
+//                index = i;
+//
+//            }
+//        }
         subgoals.remove(index);
         return s;
     }
 
-    public Action boundAction(Plan p, Action ac, ArrayList<Variable> localbound, boolean internalselect) {
+    public Action boundAction(Plan p, Action ac, ArrayList<Variable> localbound, boolean internalselect) throws IOException {
         // meghdar dehi kardan be Ation
         if (!canBoundAction(ac, localbound)) {
             return null;
@@ -686,6 +763,8 @@ public class Pop {
                             for (int l = 0; l < localbound.size(); l++) {
                                 if (ac2.preconditions.subgoals.get(j).state.arguments.get(k).equals(localbound.get(l))) {
                                     boundAction(p, ac2, localbound, true);
+                                    writeToFile("actin bounds : " + ac2.type + ActionsArgumnetsToString(ac2));
+
                                 }
                             }
 
@@ -764,7 +843,6 @@ public class Pop {
                     }
                 }
 
-
                 if (line.contains("OPERATORS")) {
 
                     int numOfOperator = findLineNumber(line);
@@ -824,7 +902,6 @@ public class Pop {
 
 // subgoal ham sakhte shood. hala bayad be g addesh konim
                                 subgoals.add(sbgoal);
-
 
                                 //                 ac.preconditions.subgoals.add(sbgoal);
                             }
@@ -907,7 +984,6 @@ public class Pop {
             if (states.get(m).predicate.equalsIgnoreCase(line)) {
                 predicateSize = states.get(m).numberOfArg;
 
-
             }
             //        break;
         }
@@ -958,7 +1034,15 @@ public class Pop {
         ArrayList<Variable> arva = new ArrayList<>();
         for (int i = 0; i < action.arguments.size(); i++) {
             Variable v = new Variable();
-            v = action.arguments.get(i);
+//            v = action.arguments.get(i);
+            v.name = action.arguments.get(i).name;
+            v.value = action.arguments.get(i).value;
+//            for(int j=0; j< action.arguments.get(i).constraints.size(); j++){
+//                Variable t = new Variable();
+//                 t.name = action.arguments.get(i).constraints.get(j).name;
+//                 t.value = action.arguments.get(i).constraints.get(j).value;
+//                 v.constraints.add(t);
+//            }
             arva.add(v);
 
         }
@@ -973,7 +1057,9 @@ public class Pop {
             ArrayList<Variable> arv = new ArrayList<>();
             for (int j = 0; j < action.deletes.get(i).arguments.size(); j++) {
                 Variable v = new Variable();
-                v = action.deletes.get(i).arguments.get(j);
+//                v = action.deletes.get(i).arguments.get(j);
+                v.name = action.deletes.get(i).arguments.get(j).name;
+                v.value = action.deletes.get(i).arguments.get(j).value;
                 arv.add(v);
             }
             s.arguments.addAll(arv);
@@ -990,7 +1076,9 @@ public class Pop {
             ArrayList<Variable> arv = new ArrayList<>();
             for (int j = 0; j < action.adds.get(i).arguments.size(); j++) {
                 Variable v = new Variable();
-                v = action.adds.get(i).arguments.get(j);
+//                v = action.adds.get(i).arguments.get(j);
+                v.name = action.adds.get(i).arguments.get(j).name;
+                v.value = action.adds.get(i).arguments.get(j).value;
                 arv.add(v);
             }
             s.arguments.addAll(arv);
@@ -1013,7 +1101,9 @@ public class Pop {
             ArrayList<Variable> var = new ArrayList<>();
             for (int j = 0; j < action.preconditions.subgoals.get(i).state.arguments.size(); j++) {
                 Variable v = new Variable();
-                v = action.preconditions.subgoals.get(i).state.arguments.get(j);
+//                v = action.preconditions.subgoals.get(i).state.arguments.get(j);
+                v.name = action.preconditions.subgoals.get(i).state.arguments.get(j).name;
+                v.value = action.preconditions.subgoals.get(i).state.arguments.get(j).value;
                 var.add(v);
             }
             s.arguments.addAll(var);
@@ -1083,7 +1173,7 @@ public class Pop {
 
             Random r = new Random();
             double d = r.nextDouble();
-            d = d * this.operators.get(i).preconditions.subgoals.size();
+            d = d * this.operators.get(i).preconditions.subgoals.size() * (i + 4);
             random.add(d);
 
         }
@@ -1118,7 +1208,7 @@ public class Pop {
 
     public void readProblem() throws FileNotFoundException, IOException {
 
-        try (BufferedReader problem = new BufferedReader(new FileReader("src/pop/simple.txt"))) {
+        try (BufferedReader problem = new BufferedReader(new FileReader("src/pop/sussman-anomaly.txt"))) {
             StringBuilder sb = new StringBuilder();
             String line = problem.readLine();
 
@@ -1268,19 +1358,35 @@ public class Pop {
         if (localbound == null) {
             return true;
         }
-        for (Variable argument : ac.arguments) {
-            for (Variable constraint : argument.constraints) {
-                for (Variable localbound1 : localbound) {
-                    if (localbound1.name.equals(argument.name)) {
-                        if (constraint == localbound1) {
-                            f = false;
-                            return f;
+//        for (Variable argument : ac.arguments) {
+//            for (Variable constraint : argument.constraints) {
+//                for (Variable localbound1 : localbound) {
+//                    if (localbound1.name.equals(argument.name)) {
+//                        if (constraint == localbound1) {
+//                            f = false;
+//                            return f;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+
+        if (ac.arguments.isEmpty()) {
+            ArrayList<String> avail = availObject(ac, 0);
+            return true;
+        } else {
+            for (int i = 0; i < ac.arguments.size(); i++) {
+                ArrayList<String> avail = availObject(ac, i);
+                for (int j = 0; j < localbound.size(); j++) {
+                    if (ac.arguments.get(i).name.equalsIgnoreCase(localbound.get(j).name)) {
+                        if (!avail.contains(localbound.get(j).value)) {
+                            return false;
                         }
+
                     }
                 }
             }
         }
-
         return f;
     }
 
@@ -1380,15 +1486,22 @@ public class Pop {
 
     public ArrayList<Action> track(Plan p, Action ac) {
         Object[] order = p.ordering.toArray();
-        Set<Action> permited = new HashSet<>();
-        permited.add(ac);
+//        Set<Action> permited = new HashSet<>();
+        ArrayList<Action> inTrack = new ArrayList<>();
+//        if (!permited.contains(ac)) {
+        inTrack.add(ac);
+//        }
         for (int i = 0; i < p.ordering.size(); i++) {
             Ordering o = (Ordering) order[i];
-            if (o.after == ac) {
-                permited.add(o.before);
+            if (o.after == ac && !inTrack.contains(ac)) {
+//                if () {
+                inTrack.add(o.before);
+//                }
             }
-            if (o.before == ac) {
-                permited.add(o.after);
+            if (o.before == ac && !inTrack.contains(ac)) {
+//                if () {
+                inTrack.add(o.after);
+//                }
             }
         }
 
@@ -1400,24 +1513,43 @@ public class Pop {
             for (Action a : last) {
                 if (p.link.get(i).provider == a) {
                     now.add(p.link.get(i).receiver);
-                    permited.add(p.link.get(i).receiver);
+                    if (!inTrack.contains(p.link.get(i).receiver)) {
+                        inTrack.add(p.link.get(i).receiver);
+                    }
                 }
+
+//                if (p.link.get(i).receiver == a) {
+//                    now.add(p.link.get(i).provider);
+//                    if (!permited.contains(p.link.get(i).provider)) {
+//                        permited.add(p.link.get(i).provider);
+//                    }
+//                }
+            }
+            last = now;
+        }
+        for (int i = 0; i < p.link.size(); i++) {
+            ArrayList<Action> now = new ArrayList<>();
+
+            for (Action a : last) {
+//                if (p.link.get(i).provider == a) {
+//                    now.add(p.link.get(i).receiver);
+//                    if (!permited.contains(p.link.get(i).receiver)) {
+//                        permited.add(p.link.get(i).receiver);
+//                    }
+//                }
 
                 if (p.link.get(i).receiver == a) {
                     now.add(p.link.get(i).provider);
-                    permited.add(p.link.get(i).provider);
+                    if (!inTrack.contains(p.link.get(i).provider)) {
+                        inTrack.add(p.link.get(i).provider);
+                    }
                 }
 
             }
             last = now;
         }
-        ArrayList<Action> x = new ArrayList<>();
-        for (int i = 0; i < permited.size(); i++) {
-            Object[] per = permited.toArray();
-            Action permit = (Action) per[i];
-            x.add(permit);
-        }
-        return x;
+
+        return inTrack;
     }
 
     public boolean cycleCheck(Plan p, Action search, Action start) { // first time last just contain search action 
@@ -1431,7 +1563,9 @@ public class Pop {
             Ordering o = new Ordering();
             o.before = p.link.get(i).provider;
             o.after = p.link.get(i).receiver;
-            allord.add(o);
+            if (!allord.contains(o)) {
+                allord.add(o);
+            }
         }
 
         int limit = p.step.size();
@@ -1472,34 +1606,36 @@ public class Pop {
 
     }
 
-    public void subgoalRemover(Plan p, Action ac1, Action ac2) {
+    public void subgoalRemover(Plan p, Action ac1, Action ac2) throws IOException {
+        writeToFile("Clean All Subgoals that satisfied by this link");
         for (int i = 0; i < ac1.adds.size(); i++) {
             for (int k = 0; k < ac2.preconditions.subgoals.size(); k++) {
 
                 if (ac1.adds.get(i).predicate.equalsIgnoreCase(ac2.preconditions.subgoals.get(k).state.predicate)) {
                     int equality1 = 0;
                     int equality = 0;
-                    ArrayList<Variable> localbound = new ArrayList<>();
+                    ArrayList<Variable> localboundac1 = new ArrayList<>();
+                    ArrayList<Variable> localboundac2 = new ArrayList<>();
 
                     for (int j = 0; j < ac1.adds.get(i).numberOfArg; j++) {
-                        if (ac1.adds.get(i).arguments.get(j).value == null && ac2.preconditions.subgoals.get(k).state.arguments.get(j).value != null) {
+                        if (ac1.adds.get(i).arguments.get(j).value == null && ac2.preconditions.subgoals.get(k).state.arguments.get(j).value == null) {
+
+                            equality1++;
+                        }else if (ac1.adds.get(i).arguments.get(j).value == null && ac2.preconditions.subgoals.get(k).state.arguments.get(j).value != null) {
                             Variable v = new Variable();
                             v = ac1.adds.get(i).arguments.get(j);
-                            v.value = ac2.preconditions.subgoals.get(k).state.arguments.get(j);
-                            localbound.add(v);
+                            v.value = ac2.preconditions.subgoals.get(k).state.arguments.get(j).value;
+                            localboundac1.add(v);
 
                             equality1++;
                         } else if (ac1.adds.get(i).arguments.get(j).value != null && ac2.preconditions.subgoals.get(k).state.arguments.get(j).value == null) {
                             Variable v = new Variable();
                             v = ac2.preconditions.subgoals.get(k).state.arguments.get(j);
                             v.value = ac1.adds.get(i).arguments.get(j).value;
-                            localbound.add(v);
+                            localboundac2.add(v);
 
                             equality1++;
-                        } else if (ac1.adds.get(i).arguments.get(j).value == null && ac2.preconditions.subgoals.get(k).state.arguments.get(j).value == null) {
-
-                            equality1++;
-                        } else if (ac1.adds.get(i).arguments.get(j).value == ac2.preconditions.subgoals.get(k).state.arguments.get(j).value) {
+                        }  else if (ac1.adds.get(i).arguments.get(j).value == ac2.preconditions.subgoals.get(k).state.arguments.get(j).value) {
 
                             equality1++;
 
@@ -1507,18 +1643,24 @@ public class Pop {
                         }
                         equality++;
                     }
-                    if (!localbound.isEmpty() && inSubgoalRemove(localbound)) {
-                        boundAction(p, ac2, localbound, true);
-                    }
-                    if (localbound.isEmpty() || (!localbound.isEmpty() && inSubgoalRemove(localbound))) {
-                        if (equality == equality1) {
-                            for (int w = 0; w < p.subgoal.size(); w++) {
-                                if (p.subgoal.get(w).action == ac2 && p.subgoal.get(w).state == ac2.preconditions.subgoals.get(k).state) {
-                                    p.subgoal.remove(w);
-                                    break;
-                                }
+                    if (equality == equality1) {
+                        if (!localboundac1.isEmpty()) {
+                            boundAction(p, ac1, localboundac1, true);
+                            writeToFile("actin bounds : " + ac1.type + ActionsArgumnetsToString(ac1));
+                        }
+                        if (!localboundac2.isEmpty()) {
+                            boundAction(p, ac2, localboundac2, true);
+                            writeToFile("actin bounds : " + ac2.type + ActionsArgumnetsToString(ac2));
+                        }
+
+                        for (int w = 0; w < p.subgoal.size(); w++) { // shak darammmmmmmmmmmmmmmmmmmmmmmmmmmmmm be inke peyda beshe
+                            if (p.subgoal.get(w).action == ac2 && p.subgoal.get(w).state == ac2.preconditions.subgoals.get(k).state) {
+                                writeToFile("Subgoal removed : "+ p.subgoal.get(w).state.predicate + " in action : "+ p.subgoal.get(w).action.type + ActionsArgumnetsToString(p.subgoal.get(w).action));
+                                p.subgoal.remove(w);
+                                break;
                             }
                         }
+
                     }
                 }
             }
@@ -1535,6 +1677,15 @@ public class Pop {
             }
         }
         return true;
+
+    }
+
+    public void orderingOperators(int i) {
+        Action last = this.operators.get(i);
+        for (int j = i; j < operators.size() - 1; j++) {
+            this.operators.set(j, this.operators.get(j + 1));
+        }
+        this.operators.set(operators.size() - 1, last);
 
     }
 

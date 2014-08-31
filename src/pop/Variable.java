@@ -14,7 +14,9 @@ import java.util.ArrayList;
  */
 public class Variable {
     String name = new String();
-    Object value = new Object();
+//    Object value = new Object();
+        String value = new String();
+
     ArrayList<Variable> constraints = new ArrayList<>();
 
     public Variable(Variable v) {
