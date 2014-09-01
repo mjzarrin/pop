@@ -1,0 +1,236 @@
+POP START 
+ 
+ 
+
+ num of try 1
+
+
+
+Subgoal Selected : ON-TABLE(on-table-1: a)   for action GOALS()  
+Start Searching in internal actions.
+Internal Action not found or selected.
+Start Searching an operators Satisfies the subgoal.
+operators selected and goes for bounding. the operator is: PUT-DOWN(ob: null)  
+bounding operation for PUT-DOWN(ob: null)   for ob: a 
+actin bounds : PUT-DOWN(ob: a)  
+Clean All Subgoals that satisfied by this link start....
+ Link Added : 
+              link provider : PUT-DOWN(ob: a)  
+              link receiver  : GOALS()  
+              link condition: ON-TABLE(on-table-1: a)  
+1 new Subgoals added as bellow: 
+HOLDING(ob: a)  
+
+find thread for new action : PUT-DOWN(ob: a)  
+Thread finding Starts ....
+external action used and this actions must check to not delete any conditions of all links in plan. our action is :PUT-DOWN(ob: a)  
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+ num of try 2
+
+
+
+Subgoal Selected : CLEAR(clear-1: b)   for action GOALS()  
+Start Searching in internal actions.
+Internal Action not found or selected.
+Start Searching an operators Satisfies the subgoal.
+operators selected and goes for bounding. the operator is: PUT-DOWN(ob: null)  
+bounding operation for PUT-DOWN(ob: null)   for ob: b 
+actin bounds : PUT-DOWN(ob: b)  
+Clean All Subgoals that satisfied by this link start....
+ Link Added : 
+              link provider : PUT-DOWN(ob: b)  
+              link receiver  : GOALS()  
+              link condition: CLEAR(clear-1: b)  
+1 new Subgoals added as bellow: 
+HOLDING(ob: b)  
+
+find thread for new action : PUT-DOWN(ob: b)  
+Thread finding Starts ....
+external action used and this actions must check to not delete any conditions of all links in plan. our action is :PUT-DOWN(ob: b)  
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+ num of try 3
+
+
+
+Subgoal Selected : HOLDING(ob: a)   for action PUT-DOWN(ob: a)  
+Start Searching in internal actions.
+Internal Action not found or selected.
+Start Searching an operators Satisfies the subgoal.
+operators selected and goes for bounding. the operator is: UNSTACK(sob: null,sunderob: null)  
+bounding operation for UNSTACK(sob: null,sunderob: null)   for sob: a 
+actin bounds : UNSTACK(sob: a,sunderob: null)  
+Clean All Subgoals that satisfied by this link start....
+ Link Added : 
+              link provider : UNSTACK(sob: a,sunderob: null)  
+              link receiver  : PUT-DOWN(ob: a)  
+              link condition: HOLDING(ob: a)  
+3 new Subgoals added as bellow: 
+ON(sob: a , sunderob: null)  
+CLEAR(sob: a)  
+ARM-EMPTY()  
+
+find thread for new action : UNSTACK(sob: a,sunderob: null)  
+Thread finding Starts ....
+external action used and this actions must check to not delete any conditions of all links in plan. our action is :UNSTACK(sob: a,sunderob: null)  
+Constrain added for action :UNSTACK (sob: a,sunderob: null)   Constrain is not equlity for (sob b)
+but now i dont consider constrain
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+ num of try 4
+
+
+
+Subgoal Selected : HOLDING(ob: b)   for action PUT-DOWN(ob: b)  
+Start Searching in internal actions.
+Internal Action not found or selected.
+Start Searching an operators Satisfies the subgoal.
+operators selected and goes for bounding. the operator is: PICK-UP(ob1: null)  
+bounding operation for PICK-UP(ob1: null)   for ob1: b 
+actin bounds : PICK-UP(ob1: b)  
+Clean All Subgoals that satisfied by this link start....
+ Link Added : 
+              link provider : PICK-UP(ob1: b)  
+              link receiver  : PUT-DOWN(ob: b)  
+              link condition: HOLDING(ob: b)  
+3 new Subgoals added as bellow: 
+CLEAR(ob1: b)  
+ON-TABLE(ob1: b)  
+ARM-EMPTY()  
+
+find thread for new action : PICK-UP(ob1: b)  
+Thread finding Starts ....
+external action used and this actions must check to not delete any conditions of all links in plan. our action is :PICK-UP(ob1: b)  
+Constrain added for action :PICK-UP (ob1: b)   Constrain is not equlity for (ob1 a)
+but now i dont consider constrain
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+ num of try 5
+
+
+
+Subgoal Selected : ON(sob: a , sunderob: null)   for action UNSTACK(sob: a,sunderob: null)  
+Start Searching in internal actions.
+ Internal Action Selected : INITIAL-STATE()  
+bounding operation for UNSTACK(sob: a,sunderob: null)   for sunderob: b 
+actin bounds : UNSTACK(sob: a,sunderob: b)  
+Clean All Subgoals that satisfied by this link start....
+ Link Added in aditional subgoal remover: 
+              link provider : INITIAL-STATE()  
+              link receiver  : UNSTACK(sob: a,sunderob: b)  
+              link condition: ARM-EMPTY()  
+Subgoal removed : ARM-EMPTY in action : UNSTACK(sob: a,sunderob: b)  
+ Link Added : 
+              link provider : INITIAL-STATE()  
+              link receiver  : UNSTACK(sob: a,sunderob: b)  
+              link condition: ON(sob: a , sunderob: b)  
+Start Finding Thread for Internal Actions: 
+Thread finding Starts ....
+Internal Action used and must find actions that is thread for link between INITIAL-STATE()   to UNSTACK(sob: a,sunderob: b)   for state ON(sob: a , sunderob: b)  
+INITIAL-STATE()   has Relation to link  from  INITIAL-STATE()   to UNSTACK(sob: a,sunderob: b)  
+GOALS()   has Relation to link  from  INITIAL-STATE()   to UNSTACK(sob: a,sunderob: b)  
+PUT-DOWN(ob: a)   has Relation to link  from  INITIAL-STATE()   to UNSTACK(sob: a,sunderob: b)  
+UNSTACK(sob: a,sunderob: b)   has Relation to link  from  INITIAL-STATE()   to UNSTACK(sob: a,sunderob: b)  
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+ num of try 6
+
+
+
+Subgoal Selected : CLEAR(sob: a)   for action UNSTACK(sob: a,sunderob: b)  
+Start Searching in internal actions.
+ Internal Action Selected : INITIAL-STATE()  
+Clean All Subgoals that satisfied by this link start....
+ Link Added : 
+              link provider : INITIAL-STATE()  
+              link receiver  : UNSTACK(sob: a,sunderob: b)  
+              link condition: CLEAR(sob: a)  
+Start Finding Thread for Internal Actions: 
+Thread finding Starts ....
+Internal Action used and must find actions that is thread for link between INITIAL-STATE()   to UNSTACK(sob: a,sunderob: b)   for state CLEAR(sob: a)  
+INITIAL-STATE()   has Relation to link  from  INITIAL-STATE()   to UNSTACK(sob: a,sunderob: b)  
+GOALS()   has Relation to link  from  INITIAL-STATE()   to UNSTACK(sob: a,sunderob: b)  
+PUT-DOWN(ob: a)   has Relation to link  from  INITIAL-STATE()   to UNSTACK(sob: a,sunderob: b)  
+UNSTACK(sob: a,sunderob: b)   has Relation to link  from  INITIAL-STATE()   to UNSTACK(sob: a,sunderob: b)  
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+ num of try 7
+
+
+
+Subgoal Selected : CLEAR(ob1: b)   for action PICK-UP(ob1: b)  
+Start Searching in internal actions.
+ Internal Action Selected : UNSTACK(sob: a,sunderob: b)  
+Clean All Subgoals that satisfied by this link start....
+ Link Added : 
+              link provider : UNSTACK(sob: a,sunderob: b)  
+              link receiver  : PICK-UP(ob1: b)  
+              link condition: CLEAR(ob1: b)  
+Start Finding Thread for Internal Actions: 
+Thread finding Starts ....
+Internal Action used and must find actions that is thread for link between UNSTACK(sob: a,sunderob: b)   to PICK-UP(ob1: b)   for state CLEAR(ob1: b)  
+GOALS()   has Relation to link  from  UNSTACK(sob: a,sunderob: b)   to PICK-UP(ob1: b)  
+PUT-DOWN(ob: a)   has Relation to link  from  UNSTACK(sob: a,sunderob: b)   to PICK-UP(ob1: b)  
+PUT-DOWN(ob: b)   has Relation to link  from  UNSTACK(sob: a,sunderob: b)   to PICK-UP(ob1: b)  
+UNSTACK(sob: a,sunderob: b)   has Relation to link  from  UNSTACK(sob: a,sunderob: b)   to PICK-UP(ob1: b)  
+PICK-UP(ob1: b)   has Relation to link  from  UNSTACK(sob: a,sunderob: b)   to PICK-UP(ob1: b)  
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+ num of try 8
+
+
+
+Subgoal Selected : ON-TABLE(ob1: b)   for action PICK-UP(ob1: b)  
+Start Searching in internal actions.
+ Internal Action Selected : INITIAL-STATE()  
+Clean All Subgoals that satisfied by this link start....
+ Link Added in aditional subgoal remover: 
+              link provider : INITIAL-STATE()  
+              link receiver  : PICK-UP(ob1: b)  
+              link condition: ARM-EMPTY()  
+Subgoal removed : ARM-EMPTY in action : PICK-UP(ob1: b)  
+ Link Added : 
+              link provider : INITIAL-STATE()  
+              link receiver  : PICK-UP(ob1: b)  
+              link condition: ON-TABLE(ob1: b)  
+Start Finding Thread for Internal Actions: 
+Thread finding Starts ....
+Internal Action used and must find actions that is thread for link between INITIAL-STATE()   to PICK-UP(ob1: b)   for state ON-TABLE(ob1: b)  
+INITIAL-STATE()   has Relation to link  from  INITIAL-STATE()   to PICK-UP(ob1: b)  
+GOALS()   has Relation to link  from  INITIAL-STATE()   to PICK-UP(ob1: b)  
+PUT-DOWN(ob: a)   has Relation to link  from  INITIAL-STATE()   to PICK-UP(ob1: b)  
+PUT-DOWN(ob: b)   has Relation to link  from  INITIAL-STATE()   to PICK-UP(ob1: b)  
+UNSTACK(sob: a,sunderob: b)   has Relation to link  from  INITIAL-STATE()   to PICK-UP(ob1: b)  
+PICK-UP(ob1: b)   has Relation to link  from  INITIAL-STATE()   to PICK-UP(ob1: b)  
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+ num of try 9
+
+
+
+The Last Plan is : 
+STEPS :
+INITIAL-STATE() -> PUT-DOWN((ob: a)  ) -> PUT-DOWN((ob: b)  ) -> UNSTACK((sob: a,sunderob: b)  ) -> PICK-UP((ob1: b)  ) -> GOALS()
+
+Links :
+            PUT-DOWN(ob: a)   -> GOALS()  for state : ON-TABLE(ob1: a)  
+            PUT-DOWN(ob: b)   -> GOALS()  for state : CLEAR(sob: b)  
+            UNSTACK(sob: a,sunderob: b)   -> PUT-DOWN(ob: a)  for state : HOLDING(ob: a)  
+            PICK-UP(ob1: b)   -> PUT-DOWN(ob: b)  for state : HOLDING(ob: b)  
+            INITIAL-STATE()   -> UNSTACK(sob: a,sunderob: b)  for state : ARM-EMPTY()  
+            INITIAL-STATE()   -> UNSTACK(sob: a,sunderob: b)  for state : ON(sob: a , sunderob: b)  
+            INITIAL-STATE()   -> UNSTACK(sob: a,sunderob: b)  for state : CLEAR(sob: a)  
+            UNSTACK(sob: a,sunderob: b)   -> PICK-UP(ob1: b)  for state : CLEAR(ob1: b)  
+            INITIAL-STATE()   -> PICK-UP(ob1: b)  for state : ARM-EMPTY()  
+            INITIAL-STATE()   -> PICK-UP(ob1: b)  for state : ON-TABLE(ob1: b)  
+ORDERING :
+            INITIAL-STATE(()  ) -> GOALS(()  )

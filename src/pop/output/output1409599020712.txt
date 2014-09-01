@@ -122,3 +122,19 @@ no thread found
 Thread Resolver Starts ....  
 There is no thread to Resolve
  num of try 6
+
+
+
+The Last Plan is : 
+STEPS :
+INITIAL-STATE() -> PUT-DOWN((ob: a)  ) -> UNSTACK((sob: a,sunderob: b)  ) -> GOALS()
+
+Links :
+            PUT-DOWN((ob: a)  ) -> GOALS(()  )
+            UNSTACK((sob: a,sunderob: b)  ) -> GOALS(()  )
+            UNSTACK((sob: a,sunderob: b)  ) -> PUT-DOWN((ob: a)  )
+            INITIAL-STATE(()  ) -> UNSTACK((sob: a,sunderob: b)  )
+            INITIAL-STATE(()  ) -> UNSTACK((sob: a,sunderob: b)  )
+            INITIAL-STATE(()  ) -> UNSTACK((sob: a,sunderob: b)  )
+ORDERING :
+            INITIAL-STATE(()  ) -> GOALS(()  )

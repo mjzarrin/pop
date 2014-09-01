@@ -2,6 +2,7 @@ POP START
  
  
 
+ num of try 1
 
 
 
@@ -26,6 +27,7 @@ external action used and this actions must check to not delete any conditions of
 no thread found
 Thread Resolver Starts ....  
 There is no thread to Resolve
+ num of try 2
 
 
 
@@ -52,6 +54,7 @@ external action used and this actions must check to not delete any conditions of
 no thread found
 Thread Resolver Starts ....  
 There is no thread to Resolve
+ num of try 3
 
 
 
@@ -74,6 +77,7 @@ UNSTACK(sob: a,sunderob: b)   has Relation to link  from  UNSTACK(sob: a,sundero
 no thread found
 Thread Resolver Starts ....  
 There is no thread to Resolve
+ num of try 4
 
 
 
@@ -100,6 +104,7 @@ UNSTACK(sob: a,sunderob: b)   has Relation to link  from  INITIAL-STATE()   to U
 no thread found
 Thread Resolver Starts ....  
 There is no thread to Resolve
+ num of try 5
 
 
 
@@ -122,3 +127,19 @@ no thread found
 Thread Resolver Starts ....  
 There is no thread to Resolve
  num of try 6
+
+
+
+The Last Plan is : 
+STEPS :
+INITIAL-STATE() -> PUT-DOWN((ob: a)  ) -> UNSTACK((sob: a,sunderob: b)  ) -> GOALS()
+
+Links :
+            PUT-DOWN(ob: a)   -> GOALS()  for state : ON-TABLE(on-table-1: a)  
+            UNSTACK(sob: a,sunderob: b)   -> GOALS()  for state : CLEAR(clear-1: b)  
+            UNSTACK(sob: a,sunderob: b)   -> PUT-DOWN(ob: a)  for state : HOLDING(ob: a)  
+            INITIAL-STATE()   -> UNSTACK(sob: a,sunderob: b)  for state : ARM-EMPTY()  
+            INITIAL-STATE()   -> UNSTACK(sob: a,sunderob: b)  for state : ON(sob: a , sunderob: b)  
+            INITIAL-STATE()   -> UNSTACK(sob: a,sunderob: b)  for state : CLEAR(sob: a)  
+ORDERING :
+            INITIAL-STATE(()  ) -> GOALS(()  )
