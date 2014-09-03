@@ -1,0 +1,132 @@
+POP START 
+ 
+ 
+
+
+
+
+Subgoal Selected : 
+---------- ON-TABLE(on-table-1: a)   for action GOALS()  
+Start Searching in internal actions ...
+Internal Action Rejected.
+
+Start Searching an operators Satisfies the subgoal...
+operators selected and goes for bounding. the operator is: 
+---------- PUT-DOWN(ob: null)  
+bounding operation for PUT-DOWN(ob: null)   to ob: a 
+actin bounds : 
+---------- PUT-DOWN(ob: a)  
+Clear other Subgoals for GOALS that satisfy by this link...
+end of removing subgoals.
+ Link Added : 
+---------- link provider : PUT-DOWN(ob: a)  
+---------- link receiver  : GOALS()  
+---------- link condition: ON-TABLE(on-table-1: a)  
+1 new Subgoals added as bellow: 
+HOLDING(ob: a)  
+
+find thread for new action start... : 
+Thread finding Starts ....
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+
+
+
+Subgoal Selected : 
+---------- CLEAR(clear-1: b)   for action GOALS()  
+Start Searching in internal actions ...
+Internal Action Rejected.
+
+Start Searching an operators Satisfies the subgoal...
+operators selected and goes for bounding. the operator is: 
+---------- UNSTACK(sob: null,sunderob: null)  
+bounding operation for UNSTACK(sob: null,sunderob: null)   to sunderob: b 
+actin bounds : 
+---------- UNSTACK(sob: null,sunderob: b)  
+Clear other Subgoals for GOALS that satisfy by this link...
+end of removing subgoals.
+ Link Added : 
+---------- link provider : UNSTACK(sob: null,sunderob: b)  
+---------- link receiver  : GOALS()  
+---------- link condition: CLEAR(clear-1: b)  
+3 new Subgoals added as bellow: 
+ON(sob: null , sunderob: b)  
+CLEAR(sob: null)  
+ARM-EMPTY()  
+
+find thread for new action start... : 
+Thread finding Starts ....
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+
+
+
+Subgoal Selected : 
+---------- HOLDING(ob: a)   for action PUT-DOWN(ob: a)  
+Start Searching in internal actions ...
+ Internal Action Selected : 
+---------- UNSTACK(sob: null,sunderob: b)  
+bounding operation for starting ... 
+---------- UNSTACK(sob: null,sunderob: b)   to sob: a 
+actin bounds : 
+--------- UNSTACK(sob: a,sunderob: b)  
+Clear other Subgoals for PUT-DOWN that satisfy by this link...
+end of removing subgoals.
+ Link Added : 
+              link provider : UNSTACK(sob: a,sunderob: b)  
+              link receiver  : PUT-DOWN(ob: a)  
+              link condition: HOLDING(ob: a)  
+Start Finding Thread for Internal Actions: 
+Thread finding Starts ....
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+
+
+
+Subgoal Selected : 
+---------- ON(sob: a , sunderob: b)   for action UNSTACK(sob: a,sunderob: b)  
+Start Searching in internal actions ...
+ Internal Action Selected : 
+---------- INITIAL-STATE()  
+Clear other Subgoals for UNSTACK that satisfy by this link...
+ Link Added in aditional subgoal remover: 
+              link provider : INITIAL-STATE()  
+              link receiver  : UNSTACK(sob: a,sunderob: b)  
+              link condition: CLEAR(sob: a)  
+Subgoal removed : CLEAR in action : UNSTACK(sob: a,sunderob: b)  
+ Link Added in aditional subgoal remover: 
+              link provider : INITIAL-STATE()  
+              link receiver  : UNSTACK(sob: a,sunderob: b)  
+              link condition: ARM-EMPTY()  
+Subgoal removed : ARM-EMPTY in action : UNSTACK(sob: a,sunderob: b)  
+end of removing subgoals.
+ Link Added : 
+              link provider : INITIAL-STATE()  
+              link receiver  : UNSTACK(sob: a,sunderob: b)  
+              link condition: ON(sob: a , sunderob: b)  
+Start Finding Thread for Internal Actions: 
+Thread finding Starts ....
+no thread found
+Thread Resolver Starts ....  
+There is no thread to Resolve
+ num of execution of pop: 5
+
+
+
+The Last Plan is : 
+STEPS :
+INITIAL-STATE()   -> GOALS()   -> PUT-DOWN(ob: a)   -> UNSTACK(sob: a,sunderob: b)   -> 
+Links :
+
+            PUT-DOWN(ob: a)   -> GOALS()  for state : ON-TABLE(on-table-1: a)  
+            UNSTACK(sob: a,sunderob: b)   -> GOALS()  for state : CLEAR(clear-1: b)  
+            UNSTACK(sob: a,sunderob: b)   -> PUT-DOWN(ob: a)  for state : HOLDING(ob: a)  
+            INITIAL-STATE()   -> UNSTACK(sob: a,sunderob: b)  for state : CLEAR(sob: a)   and ARM-EMPTY()   and ON(sob: a , sunderob: b)  
+ORDERING :
+            INITIAL-STATE(()  ) -> GOALS(()  )
+one of solution is 
+
+
